@@ -1,6 +1,97 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+
+struct ShaderProgramSource{
+    std::string VertexSource;
+    std::string FragmentSource;
+};
+
+static ShaderProgramSource ParseShader(const std::string& filepath) {
+    /* Open the file */
+    std::ifstream stream(filepath);
+    
+    enum class ShaderType {
+        NONE = -1, VERTEX = 0, FRAGMENT = 1
+    };
+
+    std::string line;
+    std::stringstream ss[2];
+    ShaderType type = ShaderType::NONE;
+
+    while (getline(stream, line)) {
+        if (line.find("#shader") != std::string::npos) {
+            if (line.find("vertex") != std::string::npos) {
+                // set mode vertex
+                type = ShaderType::VERTEX;
+            }
+            else if (line.find("fragment") != std::string::npos) {
+                // set mode fragment
+                type = ShaderType::FRAGMENT;
+            }
+        }
+        else {
+            ss[(int)type] << line << "\n";
+        }
+    }
+    return { ss[0].str(), ss[1].str() };
+}
+static unsigned int CompileShader(unsigned int type, const std::string& source) {
+    /* Create the shader */
+    unsigned int id = glCreateShader(type);
+    const char* src = source.c_str();
+    glShaderSource(id, 1, &src, nullptr);
+    glCompileShader(id);
+
+    /* Error handling */
+    int result;
+    glGetShaderiv(id, GL_COMPILE_STATUS, &result);
+    if (result == GL_FALSE) {
+        int length;
+        glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+        char* message = (char*)alloca(length * sizeof(char)); // This code says the compiler to store memory dinamically in stack
+        glGetShaderInfoLog(id, length, &length, message);
+        std::cout << "Failed to compile " <<
+            (type == GL_VERTEX_SHADER ? "vertex" : "fragment")
+            << "shader!" << std::endl;
+        std::cout << message << std::endl;
+
+        /* The compilation didnt work out */
+        glDeleteShader(id);
+
+        return 0;
+    }
+
+    return id;
+}
+
+static int CreateShader(const std::string& vertexShader, const std::string& fragmentShader) {
+    /* This is like a program in c */
+    /* Firs create the file */
+    unsigned int program = glCreateProgram();
+    
+    /* Compile the files */
+    unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
+    unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
+
+    /* Link the files into the same program */
+    glAttachShader(program, vs);
+    glAttachShader(program, fs);
+    glLinkProgram(program);
+    glValidateProgram(program);
+
+    /* Delete the memory of every file */
+    glDeleteShader(vs);
+    glDeleteShader(fs);
+
+    return program;
+
+}
+
 
 int main(void)
 {
@@ -47,10 +138,19 @@ int main(void)
     glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW);
 
     /* Start with the atributes of the verteces */
-    /* index, n.componenets, type of components, zise to the next vertex (no the attribute), offset of the first generic vertex attribute*/
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
     /* Enable the vertex attribute 0 */
     glEnableVertexAttribArray(0);
+    /* index, n.componenets, type of components, zise to the next vertex (no the attribute), offset of the first generic vertex attribute*/
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+
+    ShaderProgramSource source = ParseShader("res/shaders/Basic.shader");
+    std::cout << "VERTEX:" << std::endl;
+    std::cout << source.VertexSource << std::endl;
+    std::cout << "FRAGMENT:" << std::endl;
+    std::cout << source.FragmentSource << std::endl;
+
+    unsigned int program = CreateShader(source.VertexSource, source.FragmentSource);
+    glUseProgram(program);
 
     /* This vertex buffer will be called by a drawcall in the loping of the window */
 
@@ -70,6 +170,7 @@ int main(void)
         /* Poll for and process events */
         glfwPollEvents();
     }
+    //glDeleteProgram(program);
 
     glfwTerminate();
     return 0;
