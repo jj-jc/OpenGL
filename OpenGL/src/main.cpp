@@ -6,6 +6,28 @@
 #include <string>
 #include <sstream>
 
+#define ASSERT(x) if (!(x)) __debugbreak(); // This works to break the debuger iteration and indicates where is the line where the problem appeared
+#define GLCall(x) GLClearError();\
+    x;\
+    ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+
+static void GLClearError() {
+    /* Just to be sure there are no errors */
+    while (glGetError() != GL_NO_ERROR);
+}
+static bool GLLogCall(const char* function, const char* file, unsigned int line) {
+    /* Write the number of the error */
+    while (GLenum error = glGetError()) {
+        std::cout << "[OpenGL Error} (" << error << ")" << 
+            " Function: " << function <<
+            " File: " << file <<
+            " Line: " << line <<
+            std::endl;
+        return false;
+    }
+    return true;
+}
+
 struct ShaderProgramSource{
     std::string VertexSource;
     std::string FragmentSource;
@@ -170,11 +192,10 @@ int main(void)
     {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
-
+                
         /* Drawcall the last bind vertex buffer defined*/
         //glDrawArrays(GL_TRIANGLES, 0, 6);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr); // Always the index buffer need to be unsigned format
-
+        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_INT, nullptr)); // Always the index buffer need to be unsigned format
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
