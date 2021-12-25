@@ -119,29 +119,39 @@ int main(void)
     
     std::cout << glGetString(GL_VERSION) << std::endl;
 
-    unsigned int a;
-    glGenBuffers(1, &a);
-    
-
     /* Creation of a Vertex Buffer */
     /* The points to settle down */
-    float positions[6] = {
-        -0.5f, -0.5f,
-         0.0f,  0.5f,
-         0.5f, -0.5f
+    float positions[] = {
+        -0.5f, -0.5f, // 0
+         0.5f, -0.5f, // 1 
+         0.5f,  0.5f, // 2 
+        -0.5f,  0.5f  // 3
     };
-    /* Creation of the buffer that return a ID */
+    /* This works to define the number of vertex to use and do not repeat the info */
+    unsigned int indices[] = {
+        0, 1, 2,
+        2, 3, 0
+    };
+
+    /* Creation of the buffer that returns a ID */
     unsigned int buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     /* Store the buffer in the GPU memory */
-    glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), positions, GL_STATIC_DRAW);
 
     /* Start with the atributes of the verteces */
     /* Enable the vertex attribute 0 */
     glEnableVertexAttribArray(0);
     /* index, n.componenets, type of components, zise to the next vertex (no the attribute), offset of the first generic vertex attribute*/
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+
+    /* Creation of the index buffer object */
+    unsigned int ibo;
+    glGenBuffers(1, &ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    /* Store the buffer in the GPU memory */
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
     ShaderProgramSource source = ParseShader("res/shaders/Basic.shader");
     std::cout << "VERTEX:" << std::endl;
@@ -162,7 +172,9 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT);
 
         /* Drawcall the last bind vertex buffer defined*/
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        //glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr); // Always the index buffer need to be unsigned format
+
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -170,7 +182,7 @@ int main(void)
         /* Poll for and process events */
         glfwPollEvents();
     }
-    //glDeleteProgram(program);
+    glDeleteProgram(program);
 
     glfwTerminate();
     return 0;
