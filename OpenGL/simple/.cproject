@@ -47,6 +47,14 @@
                                 								
                                 <option defaultValue="gnu.cpp.compiler.debugging.level.max" id="gnu.cpp.compiler.exe.debug.option.debugging.level.41729236" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" useByScannerDiscovery="false" valueType="enumerated"/>
                                 								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.2091316676" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/include/"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/local/include/"/>
+                                    								
+                                </option>
+                                								
                                 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1580632093" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
                                 							
                             </tool>
@@ -64,6 +72,34 @@
                             <tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.1293333609" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug"/>
                             							
                             <tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.1692336367" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
+                                								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.paths.353230289" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" useByScannerDiscovery="false" valueType="libPaths">
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/local/lib/"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/"/>
+                                    								
+                                </option>
+                                								
+                                <option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.libs.858507509" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
+                                    									
+                                    <listOptionValue builtIn="false" value="glfw3"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="GLEW"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="dl"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="m"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="GL"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="GLU"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="X11"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="pthread"/>
+                                    								
+                                </option>
                                 								
                                 <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.2007356091" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
                                     									
@@ -234,5 +270,23 @@
     </storageModule>
     	
     <storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+    	
+    <storageModule moduleId="refreshScope" versionNumber="2">
+        		
+        <configuration configurationName="Debug">
+            			
+            <resource resourceType="PROJECT" workspacePath="/simple"/>
+            		
+        </configuration>
+        		
+        <configuration configurationName="Release">
+            			
+            <resource resourceType="PROJECT" workspacePath="/simple"/>
+            		
+        </configuration>
+        	
+    </storageModule>
+    	
+    <storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
     
 </cproject>
