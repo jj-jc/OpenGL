@@ -106,6 +106,7 @@ int main(void)
     window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
     if (!window)
     {
+    	std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
     }
