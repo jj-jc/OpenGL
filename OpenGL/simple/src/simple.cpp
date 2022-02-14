@@ -1,7 +1,27 @@
+/**************************************************************
+**************************************************************
+**
+** $RCSfile: Simple.ccp $
+**
+** $Author: jj-jc $
+**
+** $Revision: 0.0.0 $
+**
+** $Date: 2022/02/14 12:21 $
+**
+** COPYRIGHT: INDRA SISTEMAS, 2000.
+** All the rights reserved
+**
+** Description: This a simple example of using OpenGL. The tutorial
+** Adopted is related with 'The Cherno' channel and 'http://www.opengl-tutorial.org/es/'
+**
+**************************************************************
+**************************************************************/
 
 // Include of the GLEW. always first than the glfw3
 #include <GL/glew.h>
-//Include of the GLFW
+
+// Include of the GLFW
 #include <GLFW/glfw3.h>
 
 // Standard headers
@@ -9,12 +29,21 @@
 #include <fstream>
 #include <string>
 #include <sstream>
-//
+
+/**
+* Struct that stores the information of the code readen.
+*/
 struct ShaderProgramSource{
     std::string VertexSource;
     std::string FragmentSource;
 };
 
+/**
+* Returns the code of the shaders specified.
+*
+* @param  filepath the file in which the code is located
+* @return          the stringstream
+*/
 static ShaderProgramSource ParseShader(const std::string& filepath) {
     /* Open the file */
     std::ifstream stream(filepath);
@@ -44,7 +73,15 @@ static ShaderProgramSource ParseShader(const std::string& filepath) {
     }
     return { ss[0].str(), ss[1].str() };
 }
-static unsigned int CompileShader(unsigned int type, const std::string& source) {
+
+/**
+* This function creates an Object shaders depending on the type specified.
+*
+* @param  type   the type of the shader required.
+* @param  source the code copied from the file.
+* @return        the id of the object to reference later.
+*/
+static unsigned int CompileShader(unsigned int type, const std::string &source) {
     /* Create the shader */
     unsigned int id = glCreateShader(type);
     const char* src = source.c_str();
@@ -73,9 +110,16 @@ static unsigned int CompileShader(unsigned int type, const std::string& source) 
     return id;
 }
 
-static int CreateShader(const std::string& vertexShader, const std::string& fragmentShader) {
+/**
+* This function creates the progam that runs inside the GPU.
+*
+* @param  vertexShader   the vertexShader that want to use.
+* @param  fragmentShader the fragmentShader that want to use.
+* @return program        the program created to run inside the GPU..
+*/
+static unsigned int CreateProgram(const std::string& vertexShader, const std::string& fragmentShader) {
     /* This is like a program in c */
-    /* Firs create the file */
+    /* First create the file */
     unsigned int program = glCreateProgram();
 
     /* Compile the files */
@@ -92,11 +136,13 @@ static int CreateShader(const std::string& vertexShader, const std::string& frag
     glDeleteShader(vs);
     glDeleteShader(fs);
 
-    return program;
+    /* It is possible to detach the the shaders from the program once linked
+     * but it is usefull to mantein to debug (it can bracets with
+     */
 
+    return program;
 }
-//
-//
+
 int main(void)
 {
 	// Some characteristics of the Window
@@ -137,6 +183,13 @@ int main(void)
          0.5f,  0.5f, // 2
         -0.5f,  0.5f  // 3
     };
+
+    float little_positions[] = {
+        -0.25f, -0.25f, // 0
+         0.25f, -0.25f, // 1
+         0.25f,  0.25f, // 2
+        -0.25f,  0.25f  // 3
+    };
     /* This works to define the number of vertex to use and do not repeat the info */
     unsigned int indices[] = {
         0, 1, 2,
@@ -149,9 +202,9 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, buffer); // Selecting the buffer created
 
     /* Store the buffer in the GPU memory statically */
-    glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), positions, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), little_positions, GL_STATIC_DRAW);
 
-    /* Start with the atributes of the verteces */
+    /* Start with the attributes of the vertices */
     /* Enable the vertex attribute 0 */
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
@@ -159,21 +212,18 @@ int main(void)
     /* Creation of the index buffer object */
     unsigned int ibo;
     glGenBuffers(1, &ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo); // Element array buffer
     /* Store the buffer in the GPU memory */
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
-    ShaderProgramSource source = ParseShader("res/shaders/Basic.shader");
+    ShaderProgramSource source = ParseShader("Shaders/shaders.glsl"); // The path is related with the workspace
     std::cout << "VERTEX:" << std::endl;
     std::cout << source.VertexSource << std::endl;
     std::cout << "FRAGMENT:" << std::endl;
     std::cout << source.FragmentSource << std::endl;
 
-    unsigned int program = CreateShader(source.VertexSource, source.FragmentSource);
+    unsigned int program = CreateProgram(source.VertexSource, source.FragmentSource);
     glUseProgram(program);
-
-    /* This vertex buffer will be called by a drawcall in the loping of the window */
-
 
     /* Loop until the user closes the window */
     while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && \
@@ -184,6 +234,8 @@ int main(void)
 
         /* Drawcall the last bind vertex buffer defined*/
         //glDrawArrays(GL_TRIANGLES, 0, 6); // this it the drawcall when you dont have any index buffer
+
+        //Draw the elements defined with bind
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr); // Always the index buffer need to be unsigned format
 
 
@@ -198,7 +250,4 @@ int main(void)
     glfwTerminate();
     return 0;
 }
-//
-//
-//
-//
+
