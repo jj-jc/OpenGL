@@ -139,7 +139,6 @@ static unsigned int CreateProgram(const std::string& vertexShader, const std::st
     /* It is possible to detach the the shaders from the program once linked
      * but it is usefull to mantein to debug (it can bracets with
      */
-
     return program;
 }
 
@@ -166,14 +165,8 @@ int main(void)
         return -1;
     }
 
-    /* Make the window's context current */
-    glfwMakeContextCurrent(window);
-
-    /* This works to activate the v-sync. to match the graphics processor's
-     *
-     *frames with the refresh rate of the monitor to fix any syncing issues
-     */
-    glfwSwapInterval(1);
+    glfwMakeContextCurrent(window); // Make the window's context
+    glfwSwapInterval(1); // activete v-sync. syncronize the frames of the screen
 
     /* This has to be done after make a valid OpenGL rendering context */
     if (glewInit() != GLEW_OK)
@@ -183,12 +176,12 @@ int main(void)
 
     /* Creation of a Vertex Buffer */
     /* The points to settle down */
-    float positions[] = {
-        -0.5f, -0.5f, // 0
-         0.5f, -0.5f, // 1
-         0.5f,  0.5f, // 2
-        -0.5f,  0.5f  // 3
-    };
+//    float positions[] = {
+//        -0.5f, -0.5f, // 0
+//         0.5f, -0.5f, // 1
+//         0.5f,  0.5f, // 2
+//        -0.5f,  0.5f  // 3
+//    };
 
     float little_positions[] = {
         -0.25f, -0.25f, // 0
@@ -203,9 +196,9 @@ int main(void)
     };
 
 
-    unsigned int buffer;
-    glGenBuffers(1, &buffer); /* Creation of the buffer that returns a ID */
-    glBindBuffer(GL_ARRAY_BUFFER, buffer); // Selecting the buffer created
+    GLuint vertexArrayID;
+    glGenBuffers(1, &vertexArrayID); /* Creation of the buffer that returns a ID */
+    glBindBuffer(GL_ARRAY_BUFFER, vertexArrayID); // Selecting the buffer created
 
     /* Store the buffer in the GPU memory statically */
     glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), little_positions, GL_STATIC_DRAW);
@@ -260,15 +253,18 @@ int main(void)
 
         r += increment;
 
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
 
-        /* Poll for and process events */
-        glfwPollEvents();
+        glfwSwapBuffers(window); // Swap front and back buffers
+        glfwPollEvents(); // Poll for and process events
     }
+
+
+    // Cleanup VBO (Vertex Array Object)
+    glDeleteBuffers(1,&vertexArrayID);
     glDeleteProgram(program);
 
-    glfwTerminate();
+    glfwTerminate(); // Close OpenGlL window and terminate GLFW
+
     return 0;
 }
 
