@@ -169,6 +169,12 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
+    /* This works to activate the v-sync. to match the graphics processor's
+     *
+     *frames with the refresh rate of the monitor to fix any syncing issues
+     */
+    glfwSwapInterval(1);
+
     /* This has to be done after make a valid OpenGL rendering context */
     if (glewInit() != GLEW_OK)
         std::cout << "Error with the glewInit" << std::endl;
@@ -225,6 +231,13 @@ int main(void)
     unsigned int program = CreateProgram(source.VertexSource, source.FragmentSource);
     glUseProgram(program);
 
+    // Get the location of the uniform declared in the fragmente shader
+    GLint location = glGetUniformLocation(program, "u_Color");
+    glUniform4f(location, 0.2f, 0.3f, 0.8f, 1.0f); // set a value to the uniform getted before
+
+
+    float r = 0.0f;
+    float increment = 0.05f;
     /* Loop until the user closes the window */
     while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && \
     		glfwWindowShouldClose(window) == 0 )
@@ -235,9 +248,17 @@ int main(void)
         /* Drawcall the last bind vertex buffer defined*/
         //glDrawArrays(GL_TRIANGLES, 0, 6); // this it the drawcall when you dont have any index buffer
 
+        glUniform4f(location, r, 0.3f, 0.8f, 1.0f);
+
         //Draw the elements defined with bind
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr); // Always the index buffer need to be unsigned format
 
+        if (r > 1.0f)
+        	increment = -0.05f;
+        else if (r < 0.0f)
+        	increment = 0.005f;
+
+        r += increment;
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
