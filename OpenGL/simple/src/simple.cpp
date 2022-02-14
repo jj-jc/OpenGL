@@ -1,6 +1,10 @@
+
+// Include of the GLEW. always first than the glfw3
 #include <GL/glew.h>
+//Include of the GLFW
 #include <GLFW/glfw3.h>
 
+// Standard headers
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -95,15 +99,20 @@ static int CreateShader(const std::string& vertexShader, const std::string& frag
 //
 int main(void)
 {
-    GLFWwindow* window;
-////
+	// Some characteristics of the Window
+	glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // OpenGL 3.3
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // Para hacer feliz a MacOS ; Aunque no debería ser necesaria
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //No queremos el viejo OpenGL
+
+	GLFWwindow* window;
     /* Initialize the library */
     if (!glfwInit())
         return -1;
 
-
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(640, 480, "Tutorial", NULL, NULL);
     if (!window)
     {
     	std::cout << "Failed to create GLFW window" << std::endl;
@@ -134,17 +143,17 @@ int main(void)
         2, 3, 0
     };
 
-    /* Creation of the buffer that returns a ID */
+
     unsigned int buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    /* Store the buffer in the GPU memory */
+    glGenBuffers(1, &buffer); /* Creation of the buffer that returns a ID */
+    glBindBuffer(GL_ARRAY_BUFFER, buffer); // Selecting the buffer created
+
+    /* Store the buffer in the GPU memory statically */
     glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), positions, GL_STATIC_DRAW);
 
     /* Start with the atributes of the verteces */
     /* Enable the vertex attribute 0 */
     glEnableVertexAttribArray(0);
-    /* index, n.componenets, type of components, zise to the next vertex (no the attribute), offset of the first generic vertex attribute*/
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
 
     /* Creation of the index buffer object */
@@ -167,13 +176,14 @@ int main(void)
 
 
     /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
+    while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && \
+    		glfwWindowShouldClose(window) == 0 )
     {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
         /* Drawcall the last bind vertex buffer defined*/
-        //glDrawArrays(GL_TRIANGLES, 0, 6);
+        //glDrawArrays(GL_TRIANGLES, 0, 6); // this it the drawcall when you dont have any index buffer
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr); // Always the index buffer need to be unsigned format
 
 
@@ -186,7 +196,6 @@ int main(void)
     glDeleteProgram(program);
 
     glfwTerminate();
-	std::cout << "Hello World!!" << std::endl;
     return 0;
 }
 //
