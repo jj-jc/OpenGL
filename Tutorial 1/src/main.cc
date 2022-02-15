@@ -232,7 +232,7 @@ int main(void)
     float r = 0.0f;
     float increment = 0.05f;
 
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     /* Loop until the user closes the window */
     while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && \
     		glfwWindowShouldClose(window) == 0 )
