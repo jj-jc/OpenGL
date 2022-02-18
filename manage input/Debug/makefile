@@ -38,19 +38,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: Tutorial\ 1
+all: manage\ input
 
 # Tool invocations
-Tutorial\ 1: $(OBJS) $(USER_OBJS)
+manage\ input: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++ -L/usr/local/lib/ -L/usr/lib/x86_64-linux-gnu/ -o "Tutorial 1" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -L/usr/local/lib/ -L/usr/lib/x86_64-linux-gnu/ -o "manage input" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(CC_DEPS)$(C++_DEPS)$(EXECUTABLES)$(C_UPPER_DEPS)$(CXX_DEPS)$(OBJS)$(CPP_DEPS)$(C_DEPS) "Tutorial 1"
+	-$(RM) $(CC_DEPS)$(C++_DEPS)$(EXECUTABLES)$(C_UPPER_DEPS)$(CXX_DEPS)$(OBJS)$(CPP_DEPS)$(C_DEPS) "manage input"
 	-@echo ' '
 
 .PHONY: all clean dependents
