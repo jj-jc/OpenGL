@@ -5,10 +5,11 @@ layout(location = 0) in vec4 position;
 layout(location = 1) in vec3 color;
 
 out vec4 vertexColor; // specify a color output to the fragment shader
-
+uniform float rotation;
+uniform vec2 translation;
 void main()
 {
-	gl_Position = position;
+	gl_Position = vec4(position.x + translation.x, position.y + translation.y, position.z, position.w);
 	vertexColor = vec4(color, 1.0); // set the output variable to a dark-red color
 };
 
@@ -18,9 +19,8 @@ void main()
 layout(location = 0) out vec4 fragColor;
 in vec4 vertexColor; // the input variable from the vertex shader (same name and same type)  
 
-uniform vec4 colorTriangle;
-
+uniform vec4 ourColor;
 void main()
 {
-	fragColor = colorTriangle;
+	fragColor = ourColor;
 };

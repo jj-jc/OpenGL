@@ -17,6 +17,11 @@
 **
 **************************************************************
 **************************************************************/
+// Includes for ImGui
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+#include "imgui_internal.h"
 
 // Include of the GLEW. always first than the glfw3
 #include <GL/glew.h>
@@ -32,6 +37,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <cmath>
+#define PI 3.1415
+
 
 // Include own header files
 #include "Shader.hpp"
@@ -54,12 +61,13 @@ static void error_callback(int error, const char* description);
 static ShaderProgramSource ParseShader(const std::string& filepath);
 static unsigned int CompileShader(unsigned int type, const std::string& source);
 static int CreateShader(const std::string& vertexShader, const std::string& fragmentShader);
-
-
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+void coutPos(ImVec2 pos, const char *variable);
 
 int main(void)
 {
-	std::cout << "Shaders example:" << std::endl;
+	std::cout << "ImGui example:" << std::endl;
 
 	GLFWwindow* window;
 	glfwSetErrorCallback(error_callback);
@@ -68,12 +76,14 @@ int main(void)
     if (!glfwInit())
     	exit(EXIT_FAILURE);
 
+    // GL 3.0 + GLSL 130
+    const char* glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
     /* Create a windowed mode window and its OpenGL context */
     // ------------------------------------------------------------------
-    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Hello Triangle", NULL, NULL);
+    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Hello ImGui", NULL, NULL);
     if (!window)
     {
     	std::cout << "Failed to create GLFW window" << std::endl;
@@ -84,12 +94,34 @@ int main(void)
     glfwSwapInterval(1); // activate v-sync. To synchronize the frames of the screen
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+
+    ImGuiContext *myContext;
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    myContext = ImGui::CreateContext();
+    ImGuiIO&  io = ImGui::GetIO(); (void)io;
+    io.MouseDrawCursor = true;
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init(glsl_version);
+
     /* This has to be done after make a valid OpenGL rendering context */
     if (glewInit() != GLEW_OK)
         std::cout << "Error with the glewInit" << std::endl;
 
     std::cout << glGetString(GL_VERSION) << std::endl;
 
+    // Our state
+    bool show_demo_window = true;
+    bool show_another_window = false;
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     /* Set up and creation the shader program */
     // ------------------------------------------------------------------
@@ -103,31 +135,27 @@ int main(void)
     unsigned int program = CreateShader(source.VertexSource, source.FragmentSource);
 
 
+    ////////////////////////////////
+    /* Control of the flow events */
+    ////////////////////////////////
+    // 			Inputs
+    // Keys
+    glfwSetKeyCallback(window, key_callback);
+
+    // Mouse
+//    glfwSetMouseButtonCallback(window, mouse_button_callback);
 
     /* set up vertex data (and buffer(s)) and configure vertex attributes */
     // ------------------------------------------------------------------
     float vertices[] = {
     	 // Position 			// color
-         0.5f,  0.75f, 0.0f,	1.0f, 0.0f, 0.0f, // top right
-        -0.5f, 	0.75f, 0.0f, 	0.0f, 1.0f, 0.0f, // top left
-        -0.5f,  0.0f, 0.0f, 	0.0f, 0.0f, 1.0f, // bottom left
-         0.5f,  0.0f, 0.0f, 	0.0f, 0.0f, 0.0f, // bottom right
-         0.5f,  0.0f, 0.0f, 	0.0f, 0.0f, 0.0f,
-         0.5f, -0.5f, 0.0f, 	0.0f, 0.0f, 0.0f,
-		-0.5f, -0.5f, 0.0f, 	0.0f, 0.0f, 0.0f,
+         0.5f,  0.5f, 0.0f,		1.0f, 0.0f, 0.0f, // top right
+         0.5f, -0.5f, 0.0f, 	0.0f, 1.0f, 0.0f,// bottom right
+        -0.5f, -0.5f, 0.0f, 	0.0f, 0.0f, 1.0f,// bottom left
+        -0.5f,  0.5f, 0.0f, 	0.0f, 0.0f, 0.0f // top left
     };
     unsigned int indices[] = {  // note that we start from 0!
-        0, 1, 2,   // first triangle
-        3, 2, 0,    // second triangle
-		4, 5, 6
-    };
-
-    // coordenates for the textures, it has to relate the corner of the triangles with the position
-    // of the texture.
-    float texCoords[] = {
-        0.0f, 0.0f,  // lower-left corner
-        1.0f, 0.0f,  // lower-right corner
-        0.5f, 1.0f   // top-center corner
+        0, 1, 3
     };
 
     unsigned int VBO, VAO, EBO;
@@ -161,30 +189,135 @@ int main(void)
 
     //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     /* Loop until the user closes the window */
+
+
+
+    static float rotation = 0.0f;
+    static float translation[] = { 0.0f, 0.0f};
+    static float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f};
+    ImVec2 localMousePos = {0.0f ,0.0f};
+    ImVec2 windowMousePos = {0.0f ,0.0f};
+    ImGuiMouseCursor mouseCursor;
+    int counter = 0;
+
+//    ImGuiContext& g = *GImGui;
+
     while (!glfwWindowShouldClose(window))
     {
+        glfwPollEvents();
     	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     	glClear(GL_COLOR_BUFFER_BIT);
+
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+//		ImGui::UpdateInputEvents(false);
+
+//    	coutPos(localMousePos, "localMousePos ");
+//    	coutPos(windowMousePos, "windowMousePos ");
+
+//    	std::cout << counter << std::endl;
+//    	ImGui::SetMousePos(55.0f, 55.0f);
 
         // be sure to activate the shader
         glUseProgram(program);
 
     	float timeValue = glfwGetTime();
     	float greenValue = sin(timeValue) / 2.0f + 0.5f;
-    	int vertexColorLocation = glGetUniformLocation(program, "colorTriangle");
+    	int vertexColorLocation = glGetUniformLocation(program, "ourColor");
+    	int rotationID = glGetUniformLocation(program, "rotation");
+    	int translationID = glGetUniformLocation(program, "translation");
 
         // draw our first triangle
-        glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
         glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-        glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
-        // glBindVertexArray(0); // no need to unbind it every time
+        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0); // no need to unbind it every time
 
+        // render your GUI
+//        ImGui::Begin("Demo window", );
+        ImGui::Begin("Demo", 0);
+        ImGui::Button("Hello!");
+        ImGui::SliderFloat("rotation", &rotation, 0, 2 * PI);
+        //ImGui::Spacing();
+        //ImGui::NewLine();
+        ImGui::SliderFloat2("position", translation, -1.0, 1.0);
+        ImGui::End();
+
+        glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+        glUniform1f(rotationID, rotation);
+        glUniform2f(translationID, translation[0], translation[1]);
+
+        // Probar cosas con Dear imGui
+        ImGui::ShowDemoWindow(NULL);
+        ImGui::ShowUserGuide();
+        mouseCursor = ImGui::GetMouseCursor();
+
+        localMousePos = ImGui::GetMousePos();
+
+//        io.MousePos = {localMousePos.x + 20.0f, localMousePos.y + 5.0f};
+
+        //std::cout << (int) mouseCursor << std::endl;
+//
+//        if(ImGui::IsMouseClicked(0))
+//        {
+//        	std::cout << "CLICKED THE LEFT BUTTON OF THE MOUSE" << std::endl;
+//        	io.AddClicke(512, false);
+//        	std:: cout << io.InputEventsQueue << std::endl;
+//        	if(ImGui::IsKeyPressed(512, false)){
+//        		std::cout << "Cought the new event" << std::endl;
+//        	}
+//        	else
+//        		std::cout << "FUCK" << std::endl;
+//
+//
+////        	counter = counter + 1;
+////        	windowMousePos = {localMousePos.x + 20.0f, localMousePos.y + 5.0f};
+////        	io.MousePos = windowMousePos;
+//        }
+//        windowMousePos = {200*sin(timeValue) , -200*sin(timeValue)};
+//        if(ImGui::IsMouseDragging( 0, -1.0f))
+//        {
+//        	std::cout << "Dragging THE LEFT BUTTON OF THE MOUSE" << std::endl;
+//        	io.MousePos = windowMousePos;
+//        }
+
+//        io.AddMousePosEvent(80.0f * timeValue, 300.0f + 200.0f*sin(timeValue));
+
+//        if(ImGui::IsKeyPressed(512, false)){
+//        	std::cout << "Hello" << std::endl;
+//        }
+
+//        io.MousePos = {(float)40.0f * timeValue, (float)(300.0f + 200.0f*sin(timeValue))};
+
+		if(ImGui::IsKeyPressed(ImGuiKey_Space, false))
+		{
+			std::cout << "Key Event simulated" << std::endl;
+		}
+
+		if(ImGui::IsMouseClicked(0, false))
+		{
+			std::cout << "Mouse Click Event simulated" << std::endl;
+		}
+
+
+
+        // Render dear imgui into screen
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         //glfwSetCursorPos(window, 200.0f, 55.0f);
 
+        // Resize the window
+        int display_w, display_h;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+
         glfwSwapBuffers(window); // Swap front and back buffers
-        glfwPollEvents(); // Poll for and process events
     }
 
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &VAO);
@@ -304,4 +437,63 @@ static int CreateShader(const std::string& vertexShader, const std::string& frag
 
     return program;
 
+}
+
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, GL_TRUE);
+    if (key == GLFW_KEY_ENTER && action == GLFW_PRESS)
+    {
+    	std::cout << "Enter pressed" << std::endl;
+    	ImGuiIO& io = ImGui::GetIO();
+    	io.AddKeyEvent(ImGuiKey_Space, true);
+        io.AddKeyEvent(ImGuiKey_Space, false);
+        io.AddMouseButtonEvent(0, true);
+        io.AddMouseButtonEvent(0, false);
+    }
+
+    if(key == GLFW_KEY_LEFT && action == GLFW_PRESS)
+    {
+    	std::cout << "Left Key pressed" << std::endl;
+    	ImGuiIO& io = ImGui::GetIO();
+    	ImVec2 oldMousePos = ImGui::GetMousePos();
+    	io.AddMousePosEvent(oldMousePos.x - 20.0f, oldMousePos.y);
+    }
+
+    if(key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
+    {
+    	std::cout << "Right Key pressed" << std::endl;
+    	ImGuiIO& io = ImGui::GetIO();
+    	ImVec2 oldMousePos = ImGui::GetMousePos();
+    	io.AddMousePosEvent(oldMousePos.x + 20.0f, oldMousePos.y);
+    }
+
+    if(key == GLFW_KEY_UP && action == GLFW_PRESS)
+    {
+    	std::cout << "Right Key pressed" << std::endl;
+    	ImGuiIO& io = ImGui::GetIO();
+    	ImVec2 oldMousePos = ImGui::GetMousePos();
+    	io.AddMousePosEvent(oldMousePos.x, oldMousePos.y - 20.0f);
+    }
+
+    if(key == GLFW_KEY_DOWN && action == GLFW_PRESS)
+    {
+    	std::cout << "Right Key pressed" << std::endl;
+    	ImGuiIO& io = ImGui::GetIO();
+    	ImVec2 oldMousePos = ImGui::GetMousePos();
+    	io.AddMousePosEvent(oldMousePos.x, oldMousePos.y + 20.0f);
+    }
+
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+    	std::cout << "Right Mouse Input pressed" << std::endl;
+}
+
+void coutPos(ImVec2 pos, const char *variable)
+{
+	std::cout << "---" << variable << "position --- "<< std::endl;
+	std::cout << "x: " << pos.x << "y: " << pos.y << std::endl;
 }
