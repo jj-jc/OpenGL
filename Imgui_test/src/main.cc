@@ -53,8 +53,6 @@ struct ShaderProgramSource{
 };
 
 
-
-
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 static void error_callback(int error, const char* description);
@@ -64,6 +62,9 @@ static int CreateShader(const std::string& vertexShader, const std::string& frag
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void coutPos(ImVec2 pos, const char *variable);
+static void DebugLogInputEvent(const ImGuiInputEvent* e);
+void createMenu();
+
 
 int main(void)
 {
@@ -71,7 +72,7 @@ int main(void)
 
 	GLFWwindow* window;
 	glfwSetErrorCallback(error_callback);
-
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	/* Initialize the library */
     if (!glfwInit())
     	exit(EXIT_FAILURE);
@@ -93,7 +94,6 @@ int main(void)
     glfwMakeContextCurrent(window); // Make the window's context
     glfwSwapInterval(1); // activate v-sync. To synchronize the frames of the screen
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
 
     ImGuiContext *myContext;
     // Setup Dear ImGui context
@@ -145,6 +145,7 @@ int main(void)
     // Mouse
 //    glfwSetMouseButtonCallback(window, mouse_button_callback);
 
+
     /* set up vertex data (and buffer(s)) and configure vertex attributes */
     // ------------------------------------------------------------------
     float vertices[] = {
@@ -154,6 +155,7 @@ int main(void)
         -0.5f, -0.5f, 0.0f, 	0.0f, 0.0f, 1.0f,// bottom left
         -0.5f,  0.5f, 0.0f, 	0.0f, 0.0f, 0.0f // top left
     };
+
     unsigned int indices[] = {  // note that we start from 0!
         0, 1, 3
     };
@@ -290,6 +292,12 @@ int main(void)
 
 //        io.MousePos = {(float)40.0f * timeValue, (float)(300.0f + 200.0f*sin(timeValue))};
 
+		if(ImGui::IsKeyPressed(ImGuiKey_1, false))
+		{
+			std::cout << "R pressed" << std::endl;
+			io.MousePos = {(float)40.0f * timeValue, (float)(300.0f + 200.0f*sin(timeValue))};
+		}
+
 		if(ImGui::IsKeyPressed(ImGuiKey_Space, false))
 		{
 			std::cout << "Key Event simulated" << std::endl;
@@ -300,7 +308,7 @@ int main(void)
 			std::cout << "Mouse Click Event simulated" << std::endl;
 		}
 
-
+		createMenu();
 
         // Render dear imgui into screen
         ImGui::Render();
@@ -484,6 +492,14 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     	io.AddMousePosEvent(oldMousePos.x, oldMousePos.y + 20.0f);
     }
 
+    if(key == GLFW_KEY_A && action == GLFW_PRESS)
+    {
+    	std::cout << "Right Key pressed" << std::endl;
+    	ImGuiIO& io = ImGui::GetIO();
+    	float timeValue = glfwGetTime();
+		io.MousePos = {(float)40.0f * timeValue, (float)(300.0f + 200.0f*sin(timeValue))};
+    }
+
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
@@ -496,4 +512,63 @@ void coutPos(ImVec2 pos, const char *variable)
 {
 	std::cout << "---" << variable << "position --- "<< std::endl;
 	std::cout << "x: " << pos.x << "y: " << pos.y << std::endl;
+}
+
+static void DebugLogInputEvent(const ImGuiInputEvent* e)
+{
+    switch (e->Type)
+    {
+    case ImGuiInputEventType_MousePos:
+        IMGUI_DEBUG_LOG_IO("Event: MousePos (%.1f %.1f)\n", e->MousePos.PosX, e->MousePos.PosY);
+        break;
+    case ImGuiInputEventType_MouseButton:
+        IMGUI_DEBUG_LOG_IO("Event: MouseButton %d %s\n", e->MouseButton.Button, e->MouseButton.Down ? "Down" : "Up");
+        break;
+    case ImGuiInputEventType_MouseWheel:
+        IMGUI_DEBUG_LOG_IO("Event: MouseWheel (%.1f %.1f)\n", e->MouseWheel.WheelX, e->MouseWheel.WheelX);
+        break;
+    case ImGuiInputEventType_Key:
+        IMGUI_DEBUG_LOG_IO("Event: Key \"%s\" %s\n", ImGui::GetKeyName(e->Key.Key), e->Key.Down ? "Down" : "Up");
+        break;
+    case ImGuiInputEventType_Focus:
+        IMGUI_DEBUG_LOG_IO("Event: AppFocused %d\n", e->AppFocused.Focused);
+        break;
+    case ImGuiInputEventType_None:
+    default:
+        break;
+    }
+}
+
+void createMenu(){
+	bool my_tool_active;
+	float my_color[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+
+	// Create a window called "My First Tool", with a menu bar.
+	ImGui::Begin("My First Tool", &my_tool_active, ImGuiWindowFlags_MenuBar);
+	if (ImGui::BeginMenuBar())
+	{
+	    if (ImGui::BeginMenu("File"))
+	    {
+	        if (ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */ }
+	        if (ImGui::MenuItem("Save", "Ctrl+S"))   { /* Do stuff */ }
+	        if (ImGui::MenuItem("Close", "Ctrl+W"))  { my_tool_active = false; }
+	        ImGui::EndMenu();
+	    }
+	    ImGui::EndMenuBar();
+	}
+
+	// Edit a color (stored as ~4 floats)
+	ImGui::ColorEdit4("Color", my_color);
+
+	// Plot some values
+	const float my_values[] = { 0.2f, 0.1f, 1.0f, 0.5f, 0.9f, 2.2f };
+	ImGui::PlotLines("Frame Times", my_values, IM_ARRAYSIZE(my_values));
+
+	// Display contents in a scrolling region
+	ImGui::TextColored(ImVec4(1,1,0,1), "Important Stuff");
+	ImGui::BeginChild("Scrolling");
+	for (int n = 0; n < 50; n++)
+	    ImGui::Text("%04d: Some text", n);
+	ImGui::EndChild();
+	ImGui::End();
 }
