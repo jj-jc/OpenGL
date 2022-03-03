@@ -5,6 +5,7 @@ layout(location = 0) in vec4 position;
 layout(location = 1) in vec3 color;
 
 out vec4 vertexColor; // specify a color output to the fragment shader
+uniform mat4 transform;
 
 void main()
 {
@@ -19,6 +20,7 @@ layout(location = 0) out vec4 fragColor;
 in vec4 vertexColor; // the input variable from the vertex shader (same name and same type)  
 
 uniform vec4 colorTriangle;
+
 
 void main()
 {
