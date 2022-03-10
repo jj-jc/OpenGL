@@ -17,11 +17,6 @@
 **
 **************************************************************
 **************************************************************/
-// Includes for ImGui
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-#include "imgui_internal.h"
 
 // Include of the GLEW. always first than the glfw3
 #include <GL/glew.h>
@@ -39,13 +34,18 @@
 #include <cmath>
 #define PI 3.1415
 
-
 // Include own header files
 #include "Shader.hpp"
 
+// Includes for ImGui
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+#include <imgui_internal.h>
+
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 960;
+const unsigned int SCR_HEIGHT = 720;
 
 struct ShaderProgramSource{
     std::string VertexSource;
@@ -54,7 +54,6 @@ struct ShaderProgramSource{
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow *window);
 static void error_callback(int error, const char* description);
 static ShaderProgramSource ParseShader(const std::string& filepath);
 static unsigned int CompileShader(unsigned int type, const std::string& source);
@@ -63,6 +62,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void coutPos(ImVec2 pos, const char *variable);
 static void DebugLogInputEvent(const ImGuiInputEvent* e);
+void ImGui_renderUi();
 void createMenu();
 
 
@@ -100,16 +100,15 @@ int main(void)
     IMGUI_CHECKVERSION();
     myContext = ImGui::CreateContext();
     ImGuiIO&  io = ImGui::GetIO(); (void)io;
+
+    io.IniFilename = "resources/imgui.ini";
     io.MouseDrawCursor = true;
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
-
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(window, true); // install callbacks to some functions that will catch the keyboard events
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     /* This has to be done after make a valid OpenGL rendering context */
@@ -118,14 +117,9 @@ int main(void)
 
     std::cout << glGetString(GL_VERSION) << std::endl;
 
-    // Our state
-    bool show_demo_window = true;
-    bool show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
     /* Set up and creation the shader program */
     // ------------------------------------------------------------------
-    ShaderProgramSource source = ParseShader("Shaders/shaders.glsl");
+    ShaderProgramSource source = ParseShader("resources/shaders.glsl");
     /*
     std::cout << "VERTEX:" << std::endl;
     std::cout << source.VertexSource << std::endl;
@@ -202,25 +196,23 @@ int main(void)
     ImGuiMouseCursor mouseCursor;
     int counter = 0;
 
+    // Our state
+    bool show_demo_window = true;
+    bool show_another_window = true;
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
 //    ImGuiContext& g = *GImGui;
 
     while (!glfwWindowShouldClose(window))
     {
+    	// pre-render
         glfwPollEvents();
-    	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    	glClear(GL_COLOR_BUFFER_BIT);
-
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+        // render
 //		ImGui::UpdateInputEvents(false);
-
-//    	coutPos(localMousePos, "localMousePos ");
-//    	coutPos(windowMousePos, "windowMousePos ");
-
-//    	std::cout << counter << std::endl;
-//    	ImGui::SetMousePos(55.0f, 55.0f);
 
         // be sure to activate the shader
         glUseProgram(program);
@@ -234,63 +226,65 @@ int main(void)
         // draw our first triangle
         glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
         glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0); // no need to unbind it every time
+        glBindVertexArray(0); // no need to un-bind it every time
 
         // render your GUI
 //        ImGui::Begin("Demo window", );
-        ImGui::Begin("Demo", 0);
-        ImGui::Button("Hello!");
-        ImGui::SliderFloat("rotation", &rotation, 0, 2 * PI);
-        //ImGui::Spacing();
-        //ImGui::NewLine();
-        ImGui::SliderFloat2("position", translation, -1.0, 1.0);
-        ImGui::End();
+//        ImGui::Begin("Demo", 0);
+//        ImGui::Button("Hello!");
+//        ImGui::SliderFloat("rotation", &rotation, 0, 2 * PI);
+//        //ImGui::Spacing();
+//        //ImGui::NewLine();
+//        ImGui::SliderFloat2("position", translation, -1.0, 1.0);
+//        ImGui::End();
 
         glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
         glUniform1f(rotationID, rotation);
         glUniform2f(translationID, translation[0], translation[1]);
 
         // Probar cosas con Dear imGui
-        ImGui::ShowDemoWindow(NULL);
-        ImGui::ShowUserGuide();
-        mouseCursor = ImGui::GetMouseCursor();
-
-        localMousePos = ImGui::GetMousePos();
-
-//        io.MousePos = {localMousePos.x + 20.0f, localMousePos.y + 5.0f};
-
-        //std::cout << (int) mouseCursor << std::endl;
+//        ImGui::ShowUserGuide();
+//        mouseCursor = ImGui::GetMouseCursor();
 //
-//        if(ImGui::IsMouseClicked(0))
-//        {
-//        	std::cout << "CLICKED THE LEFT BUTTON OF THE MOUSE" << std::endl;
-//        	io.AddClicke(512, false);
-//        	std:: cout << io.InputEventsQueue << std::endl;
-//        	if(ImGui::IsKeyPressed(512, false)){
-//        		std::cout << "Cought the new event" << std::endl;
-//        	}
-//        	else
-//        		std::cout << "FUCK" << std::endl;
-//
-//
-////        	counter = counter + 1;
-////        	windowMousePos = {localMousePos.x + 20.0f, localMousePos.y + 5.0f};
-////        	io.MousePos = windowMousePos;
-//        }
-//        windowMousePos = {200*sin(timeValue) , -200*sin(timeValue)};
-//        if(ImGui::IsMouseDragging( 0, -1.0f))
-//        {
-//        	std::cout << "Dragging THE LEFT BUTTON OF THE MOUSE" << std::endl;
-//        	io.MousePos = windowMousePos;
-//        }
+//        localMousePos = ImGui::GetMousePos();
 
-//        io.AddMousePosEvent(80.0f * timeValue, 300.0f + 200.0f*sin(timeValue));
 
-//        if(ImGui::IsKeyPressed(512, false)){
-//        	std::cout << "Hello" << std::endl;
-//        }
+//        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+//        if (show_demo_window)
+//            ImGui::ShowDemoWindow(&show_demo_window);
 
-//        io.MousePos = {(float)40.0f * timeValue, (float)(300.0f + 200.0f*sin(timeValue))};
+        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+        {
+            static float f = 0.0f;
+            static int counter = 0;
+
+            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+            ImGui::Checkbox("Another Window", &show_another_window);
+
+            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+                counter++;
+            ImGui::SameLine();
+            ImGui::Text("counter = %d", counter);
+
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::End();
+        }
+
+        // 3. Show another simple window.
+        if (show_another_window)
+        {
+            ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+            ImGui::Text("Hello from another window!");
+            if (ImGui::Button("Close Me"))
+                show_another_window = false;
+            ImGui::End();
+        }
 
 		if(ImGui::IsKeyPressed(ImGuiKey_1, false))
 		{
@@ -308,17 +302,18 @@ int main(void)
 			std::cout << "Mouse Click Event simulated" << std::endl;
 		}
 
-		createMenu();
 
-        // Render dear imgui into screen
+		ImGui_renderUi();
+//		createMenu();
+
+        // Render dear imgui
         ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        //glfwSetCursorPos(window, 200.0f, 55.0f);
-
-        // Resize the window
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
         glViewport(0, 0, display_w, display_h);
+    	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    	glClear(GL_COLOR_BUFFER_BIT);
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()); // Aquí es donde se renderiza realmente por medio de OpenGL
 
         glfwSwapBuffers(window); // Swap front and back buffers
     }
@@ -343,11 +338,6 @@ int main(void)
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-}
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
@@ -357,14 +347,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }
-
 static void error_callback(int error, const char* description)
 {
     fprintf(stderr, "Error: %s\n", description);
 }
-
-
-
 static ShaderProgramSource ParseShader(const std::string& filepath) {
     /* Open the file */
     std::ifstream stream(filepath);
@@ -394,7 +380,6 @@ static ShaderProgramSource ParseShader(const std::string& filepath) {
     }
     return { ss[0].str(), ss[1].str() };
 }
-
 static unsigned int CompileShader(unsigned int type, const std::string& source) {
     /* Create the shader */
     unsigned int id = glCreateShader(type);
@@ -423,7 +408,6 @@ static unsigned int CompileShader(unsigned int type, const std::string& source) 
 
     return id;
 }
-
 static int CreateShader(const std::string& vertexShader, const std::string& fragmentShader) {
     /* This is like a program in c */
     /* Firs create the file */
@@ -446,7 +430,6 @@ static int CreateShader(const std::string& vertexShader, const std::string& frag
     return program;
 
 }
-
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
@@ -497,7 +480,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     	std::cout << "Right Key pressed" << std::endl;
     	ImGuiIO& io = ImGui::GetIO();
     	float timeValue = glfwGetTime();
-		io.MousePos = {(float)40.0f * timeValue, (float)(300.0f + 200.0f*sin(timeValue))};
+    	io.AddMousePosEvent((float)40.0f * timeValue, (float)(300.0f + 200.0f*sin(timeValue)));
     }
 
 }
@@ -572,3 +555,42 @@ void createMenu(){
 	ImGui::EndChild();
 	ImGui::End();
 }
+
+
+void ImGui_renderUi(){
+	ImGuiIO& io {ImGui::GetIO()};
+	static bool dbgWindow {true};
+	static bool demoWindow {true};
+	static float value = 0.0f;
+
+
+	{ // main window
+		static bool showfps {true};
+		ImGui::Begin("Window test");
+		if (ImGui::Button("Button")){
+			if (showfps) showfps = false;
+			else showfps = true;
+		}
+		if(showfps)
+			ImGui::Text("FPS: %.2f", io.Framerate);
+		else
+			ImGui::Text("ms x frame: %.2f", 1000.0f / io.Framerate);
+
+		ImGui::Checkbox("Debug Window", &dbgWindow);
+		ImGui::Checkbox("Demo Window", &demoWindow);
+
+		ImGui::End();
+	}
+
+	if (dbgWindow){ // Debug window
+		ImGui::Begin("Debug Window");
+		ImGui::SliderFloat("FPS", &value, 1, 100, "%.2f");
+		ImGui::End();
+	}
+
+	if (demoWindow){
+		ImGui::ShowDemoWindow();
+	}
+
+}
+

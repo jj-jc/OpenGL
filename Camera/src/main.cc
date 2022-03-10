@@ -13,7 +13,6 @@
 ** All the rights reserved
 **
 ** Description: This a simple example of using OpenGL. The tutorial
-** Adopted is related with 'The Cherno' channel and 'http://www.opengl-tutorial.org/es/'
 **
 **************************************************************
 **************************************************************/
@@ -78,14 +77,12 @@ static float visibleLevel = 0.1f;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
-static void error_callback(int error, const char* description);
 static ShaderProgramSource ParseShader(const std::string& filepath);
 static unsigned int CompileShader(unsigned int type, const std::string& source);
 static int CreateShader(const std::string& vertexShader, const std::string& fragmentShader);
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-static void coutMatrix(glm::mat4 *trans);
 
 
 int main(void)
@@ -209,7 +206,7 @@ int main(void)
 //        glm::vec3(-1.3f,  1.0f, -1.5f)
 //    };
 
-    // coordenates for the textures, it has to relate the corner of the triangles with the position
+    // Coordinates for the textures, it has to relate the corner of the triangles with the position
     // of the texture.
 //    float texCoords[] = {
 //        0.0f, 0.0f,  // lower-left corner
@@ -298,7 +295,7 @@ int main(void)
     glUniform1i(glGetUniformLocation(program, "texture2"), 1); // set it manually
 
 	// ---------------------------
-	// Coordenate Sysmtems
+	// Coordinate Systems
 	// ---------------------------
 
 	// Model
@@ -364,7 +361,7 @@ int main(void)
     	deltaTime = currentFrame -lastFrame;
     	lastFrame = currentFrame;
 
-    	// Color - Texttures
+    	// Color - Textures
         glUniform1f(glGetUniformLocation(program, "visibleLevel"), visibleLevel);
         glActiveTexture(GL_TEXTURE0); // activate the texture unit first before binding texture
         glBindTexture(GL_TEXTURE_2D, texture);
@@ -444,11 +441,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-static void error_callback(int error, const char* description)
-{
-    fprintf(stderr, "Error: %s\n", description);
-}
-
 
 
 static ShaderProgramSource ParseShader(const std::string& filepath) {
@@ -501,7 +493,7 @@ static unsigned int CompileShader(unsigned int type, const std::string& source) 
             << "shader!" << std::endl;
         std::cout << message << std::endl;
 
-        /* The compilation didnt work out */
+        /* The compilation didn't work out */
         glDeleteShader(id);
 
         return 0;
@@ -512,7 +504,7 @@ static unsigned int CompileShader(unsigned int type, const std::string& source) 
 
 static int CreateShader(const std::string& vertexShader, const std::string& fragmentShader) {
     /* This is like a program in c */
-    /* Firs create the file */
+    /* First create the file */
     unsigned int program = glCreateProgram();
 
     /* Compile the files */
@@ -594,16 +586,5 @@ static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
     if (fov > 45.0f)
         fov = 45.0f;
 }
-
-static void coutMatrix(glm::mat4 *trans){
-	std::cout << "----- Transformation Matrix ----- " << std::endl;
-	for (int f = 0; f < 3; f++){
-		for(int c = 0; c < 3; c++){
-			std::cout << (*trans)[f][c] << " ";
-		}
-		std::cout << std::endl;
-	}
-}
-
 
 
