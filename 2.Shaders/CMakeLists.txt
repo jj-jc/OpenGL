@@ -8,9 +8,13 @@ set(SRC
 
 set(INC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui
     )
 
 include_directories(${INC})
+
+
+# libraries
 
 # glew
 # set(glew_DIR /usr/share/cmake-3.16/Modules/)
@@ -27,4 +31,19 @@ link_libraries(${OPENGL_gl_LIBRARY})
 find_package(glfw3 REQUIRED)
 link_libraries(glfw)
 
+# generate external resources
+add_library(imgui_lib STATIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/imgui_demo.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/imgui_draw.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/imgui_impl_glfw.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/imgui_impl_opengl3.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/imgui_tables.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/imgui_widgets.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/imgui.cpp
+    )
+
+target_include_directories(imgui_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/)
+
 add_executable(Shaders ${SRC})
+
+target_link_libraries(Shaders PUBLIC imgui_lib)
