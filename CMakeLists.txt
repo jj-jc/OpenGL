@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.0.0)
+# This defines an MY_DEBUG flag only if it is in debug mode
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DMY_DEBUG") 
 add_subdirectory(HelloTriangle)
 add_subdirectory(Coordenadas)
 add_subdirectory(1.VertexAttributes)
 add_subdirectory(2.Shaders)
 add_subdirectory(3.OpenGlObjects)
 add_subdirectory(4.DealingErrors)
+add_subdirectory(5.AbstractingOpenGL)
