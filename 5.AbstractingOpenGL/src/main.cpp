@@ -44,6 +44,7 @@
 #include "Renderer.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "VertexArray.h"
 
 
 // settings
@@ -154,16 +155,21 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
     VertexBuffer vbo(positions, sizeof(positions));
 
     // Vertex array object
-    unsigned int vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    VertexArray vao;
+    VertexBufferLayout layout;
+    layout.push<float>(3);
+    layout.push<float>(3);
+    vao.addBuffer(vbo, layout);
 
-    // Vertex Attribute position
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    // Vertex Attribute colors
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) (3 * sizeof(float)));
+    // Element buffer object
+    IndexBuffer ibo(indices, sizeof(indices));
+
+    // // Vertex Attribute position
+    // glEnableVertexAttribArray(0);
+    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    // // Vertex Attribute colors
+    // glEnableVertexAttribArray(1);
+    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) (3 * sizeof(float)));
 
     // // Vertex array object 2
     // unsigned int vao2;
@@ -179,8 +185,7 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
     // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) (3 * sizeof(float)));
     // // glBindVertexArray(0);
 
-    // Element buffer object
-    IndexBuffer ibo(indices, sizeof(indices));
+
     // glBindVertexArray(vao);
 
     // Create a complete shader program (with vertex and fragment shaders)    
@@ -196,7 +201,7 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         // // select and draw the vertex array
-        glBindVertexArray(vao);
+        vao.bind();
         // glDrawArrays(GL_TRIANGLES, 0, 3);   
 
         // select and draw the element buffer
