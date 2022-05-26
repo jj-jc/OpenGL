@@ -1,7 +1,7 @@
 #ifndef _INDEXBUFFER_H_
 #define _INDEXBUFFER_H_
 
-#include "Renderer.h"
+#include <GL/glew.h>
 
 class IndexBuffer
 {
@@ -15,7 +15,7 @@ class IndexBuffer
         void bind() const;        // Locate the objecto into the OpenGL state Machine 
         void unbind() const;      // Unlocate the objecto into the OpenGL state Machine 
 
-        inline unsigned int GetCount() const { return m_Count;}
+        inline unsigned int getCount() const { return m_Count;}
 };
 
 

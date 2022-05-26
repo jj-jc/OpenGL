@@ -1,3 +1,6 @@
+#ifndef _SHADER_H_
+#define _SHADER_H_
+
 // OpenGL API
 #include <GL/glew.h>
 
@@ -25,7 +28,7 @@ class Shader
         void bind() const;      // its not bind really, it should be program use but to mantein it coherence with the other definitions
         void unbind() const;
 
-        // TODO: do it more flexible instead of 
+        // TODO: do it more flexible instead of implement all the possibilities
         // set uniforms
         void setUniform4f(const std::string& name, glm::vec4 floats);
         static std::string getShaderSource(const char* shaderFile);
@@ -34,5 +37,4 @@ class Shader
 
 };
 
-
-
+#endif

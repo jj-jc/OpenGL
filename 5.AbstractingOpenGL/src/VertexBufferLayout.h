@@ -1,9 +1,10 @@
 #ifndef _VERTEX_BUFFER_LAYOUT_H
 #define _VERTEX_BUFFER_LAYOUT_H
 
+#include <GL/glew.h>
+
 // #include "Renderer.h"
 #include <vector>
-#include <GL/glew.h>
 
 struct VertexBufferElement // store the info needed to call glVertexAttribPointer
 {

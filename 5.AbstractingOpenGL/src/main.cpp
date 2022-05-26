@@ -164,19 +164,23 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
     Shader myShader(Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/res/shaders/triangle.vs"), 
                     Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/res/shaders/triangle.fs"));
     
-    
+    Renderer myRenderer;
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
-    	glClear(GL_COLOR_BUFFER_BIT);
-
+        myRenderer.clear();
         myShader.bind();
+        vao.bind();
+        ibo.bind();
+        myShader.setUniform4f("a_Color", glm::vec4(0.2627, 0.8706, 0.1098, 1.0));
         // Use the polygon mode. This affects how the objects are rasterized (4th step in the magic plumb)
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // works to debug if everything is drawing as it is suppose to
-        // draw the vertex array
-        // glDrawArrays(GL_TRIANGLES, 0, 3);   
+
+
+        myRenderer.draw(vao, ibo, myShader);
+
         // select and draw the element buffer
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // draw with the element information, if it has no information. Segment fault (core dumped)
+        // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // draw with the element information, if it has no information. Segment fault (core dumped)
         
         
         // Start the Dear ImGui frame
