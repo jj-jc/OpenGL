@@ -40,19 +40,18 @@
 #include "imgui_impl_opengl3.h"
 
 // My files
+// #include "Shader.h"
 #include "Shader.h"
 #include "Renderer.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "VertexArray.h"
 
-
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-
-
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 int main(void)
 {
@@ -102,6 +101,7 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
     const char* glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -109,16 +109,12 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
     (void)io;
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable
     // Keyboard Controls io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; //
-    // Enable Gamepad Controls
-
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
     // ImGui::StyleColorsClassic();
-
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
-
     // Our state
     bool show_demo_window = true;
     bool show_another_window = false;
@@ -137,6 +133,9 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
     }
 #endif
 
+    // OpenGl tools
+    glfwSetKeyCallback(window, key_callback);
+
     /* Definitions of objects */
     float positions[] = {
         // positions         // colors
@@ -153,61 +152,33 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
 
     // Vertex buffer object
     VertexBuffer vbo(positions, sizeof(positions));
-
     // Vertex array object
     VertexArray vao;
     VertexBufferLayout layout;
     layout.push<float>(3);
     layout.push<float>(3);
     vao.addBuffer(vbo, layout);
-
-    // Element buffer object
+    // Index buffer object
     IndexBuffer ibo(indices, sizeof(indices));
-
-    // // Vertex Attribute position
-    // glEnableVertexAttribArray(0);
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    // // Vertex Attribute colors
-    // glEnableVertexAttribArray(1);
-    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) (3 * sizeof(float)));
-
-    // // Vertex array object 2
-    // unsigned int vao2;
-    // glGenVertexArrays(1, &vao2);
-    // glBindVertexArray(vao2);
-    // // vbo.bind();
-    // // glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
-    // // Vertex Attribute position
-    // glEnableVertexAttribArray(1);
-    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    // // Vertex Attribute colors
-    // glEnableVertexAttribArray(0);
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) (3 * sizeof(float)));
-    // // glBindVertexArray(0);
-
-
-    // glBindVertexArray(vao);
-
     // Create a complete shader program (with vertex and fragment shaders)    
-    Shader ourShader("/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/res/shaders/triangle.vs", "/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/res/shaders/triangle.fs");
-
+    Shader myShader(Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/res/shaders/triangle.vs"), 
+                    Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/res/shaders/triangle.fs"));
+    
+    
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
     	glClear(GL_COLOR_BUFFER_BIT);
 
-        ourShader.use();
+        myShader.bind();
         // Use the polygon mode. This affects how the objects are rasterized (4th step in the magic plumb)
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-        // // select and draw the vertex array
-        vao.bind();
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // works to debug if everything is drawing as it is suppose to
+        // draw the vertex array
         // glDrawArrays(GL_TRIANGLES, 0, 3);   
-
         // select and draw the element buffer
-        // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // draw with the element information, if it has no information. Segment fault (core dumped)
-
+        
+        
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -228,8 +199,6 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
         // glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-
-
         // draw our first triangle
         glfwSwapBuffers(window); // Swap front and back buffers
         glfwPollEvents(); // Poll for and process events
@@ -247,3 +216,10 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
 
 
 // Definitions of functions 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS){
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+    	std::cout << "Esc key pressed" << std::endl;
+    }
+}

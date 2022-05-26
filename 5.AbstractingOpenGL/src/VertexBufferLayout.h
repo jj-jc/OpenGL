@@ -56,9 +56,7 @@ class VertexBufferLayout
         //     m_Elements.push_back({count, GL_UNSIGNED_BYTE, true});
         //     m_Stride += VertexBufferElement::getSizeType(GL_UNSIGNED_BYTE);
         // }
-        
 
-// TODO: el std::vector<VertexBufferElement> como referencia en vez de una copia
         inline const std::vector<VertexBufferElement>& getElements() const {return m_Elements;}
         inline unsigned int getStride() const {return m_Stride;}
 

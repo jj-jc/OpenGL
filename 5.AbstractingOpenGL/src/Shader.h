@@ -1,27 +1,38 @@
-#ifndef _SHADER_H_
-#define _SHADER_H_
+// OpenGL API
+#include <GL/glew.h>
 
-#include <GL/glew.h> // include glew to get all the requered OpenGL headers
-
-#include <string>
 #include <fstream>
+#include <string>
 #include <sstream>
+#include <vector>
+//FIXME: delete the iostream include
 #include <iostream>
+// OpenGL Mathematics and is a header-only library
+#include <glm/glm.hpp>
+// some cool staf
+#include <unordered_map>
 
 class Shader
 {
-public:
-    // The program ID
-    unsigned int ID;
+    private:
+        std::string m_FilePath;
+        unsigned int m_RendererID;
+        std::unordered_map<std::string, int> m_UniformLocationCache;
+    public:
+        Shader(const std::string& vertexSource, const std::string& fragmentSource);
+        ~Shader();
 
-    // constructor reads and builds the shader
-    Shader(const char* vertexPath, const char* fragmentPath);
-    // use/active the shader
-    void use();
-    //utility uniform functions
-    void setBool(const std::string &name, bool value) const;
-    void setInt(const std::string &name, int value) const;
-    void setFloat(const std::string &name, float value) const;
+        void bind() const;      // its not bind really, it should be program use but to mantein it coherence with the other definitions
+        void unbind() const;
+
+        // TODO: do it more flexible instead of 
+        // set uniforms
+        void setUniform4f(const std::string& name, glm::vec4 floats);
+        static std::string getShaderSource(const char* shaderFile);
+    private:
+        int getUniformLocation(const std::string& name);
+
 };
 
-#endif
+
+
