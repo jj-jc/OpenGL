@@ -1,5 +1,5 @@
-#ifndef RENDERER_H
-#define RENDERER_H
+#ifndef _RENDERER_H_
+#define _RENDERER_H_
 
 #include <GL/glew.h>
 

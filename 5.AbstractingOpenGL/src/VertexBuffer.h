@@ -1,5 +1,5 @@
-#ifndef VERTEXBUFFER_H
-#define VERTEXBUFFER_H
+#ifndef _VERTEX_BUFFER_H_
+#define _VERTEX_BUFFER_H_
 
 #include "Renderer.h"
 

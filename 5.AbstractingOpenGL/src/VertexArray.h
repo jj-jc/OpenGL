@@ -1,5 +1,5 @@
-#ifndef VERTEXARRAY_H
-#define VERTEXARRAY_H
+#ifndef _VERTEX_ARRAY_H_
+#define _VERTEX_ARRAY_H_
 
 #include "Renderer.h"
 #include "VertexBuffer.h"

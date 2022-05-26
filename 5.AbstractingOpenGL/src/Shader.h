@@ -1,5 +1,5 @@
-#ifndef SHADER_H
-#define SHADER_H
+#ifndef _SHADER_H_
+#define _SHADER_H_
 
 #include <GL/glew.h> // include glew to get all the requered OpenGL headers
 

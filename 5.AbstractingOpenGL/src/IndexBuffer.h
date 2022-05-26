@@ -1,5 +1,5 @@
-#ifndef INDEXBUFFER_H
-#define INDEXBUFFER_H
+#ifndef _INDEXBUFFER_H_
+#define _INDEXBUFFER_H_
 
 #include "Renderer.h"
 
