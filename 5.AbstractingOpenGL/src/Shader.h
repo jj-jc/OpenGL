@@ -30,6 +30,8 @@ class Shader
 
         // TODO: do it more flexible instead of implement all the possibilities
         // set uniforms
+        void setUniform1i(const std::string& name, int value); 
+        void setUniform1f(const std::string& name, float value);
         void setUniform4f(const std::string& name, glm::vec4 floats);
         static std::string getShaderSource(const char* shaderFile);
     private:

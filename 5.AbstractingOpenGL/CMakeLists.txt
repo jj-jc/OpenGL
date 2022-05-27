@@ -10,11 +10,13 @@ set(SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IndexBuffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VertexBufferLayout.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VertexArray.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Texture.cpp
     )
 
 set(INC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/
-    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/stb_image/
     )
 
 include_directories(${INC})
@@ -49,8 +51,12 @@ link_libraries(glfw)
 #     ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/imgui.cpp
 #     )
 
+add_library(stb_image_lib STATIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/stb_image/stb_image.cpp
+    )
+
 # target_include_directories(imgui_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/)
 
 add_executable(AbstractingOpenGL ${SRC})
 
-target_link_libraries(AbstractingOpenGL PUBLIC imgui_lib)
+target_link_libraries(AbstractingOpenGL PUBLIC imgui_lib stb_image_lib)

@@ -40,12 +40,15 @@
 #include "imgui_impl_opengl3.h"
 
 // My files
-// #include "Shader.h"
 #include "Shader.h"
 #include "Renderer.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "VertexArray.h"
+#include "Texture.h"
+
+// test files
+#include "stb_image.h"
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -136,13 +139,12 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
     // OpenGl tools
     glfwSetKeyCallback(window, key_callback);
 
-    /* Definitions of objects */
     float positions[] = {
-        // positions         // colors
-         0.5f, -0.5f, 0.0f,  1.0f, 0.0f,    0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f,  0.0f, 0.0f,    0.0f,    // bottom left
-        -0.5f,  0.5f, 0.0f,  0.0f, 1.0f,    1.0f,    // top left
-         0.5f,  0.5f, 0.0f,  1.0f, 1.0f,    0.0f     // top right
+        // positions         // colors          // texture coordanates
+         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 0.0f,     // bottom right
+        -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 0.0f,  0.0f, 0.0f,     // bottom left
+        -0.5f,  0.5f, 0.0f,  0.0f, 1.0f, 1.0f,  0.0f, 1.0f,     // top left
+         0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f,  1.0f, 1.0f      // top right
     };
 
     unsigned int indices[] = {
@@ -150,34 +152,49 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
         2, 3, 0
     };
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     // Vertex buffer object
     VertexBuffer vbo(positions, sizeof(positions));
     // Vertex array object
     VertexArray vao;
     VertexBufferLayout layout;
-    layout.push<float>(3);
-    layout.push<float>(3);
+    layout.push<float>(3); // positions
+    layout.push<float>(3); // color
+    layout.push<float>(2); // texture coordenates
     vao.addBuffer(vbo, layout);
     // Index buffer object
     IndexBuffer ibo(indices, sizeof(indices));
     // Create a complete shader program (with vertex and fragment shaders)    
     Shader myShader(Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/res/shaders/triangle.vs"), 
                     Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/res/shaders/triangle.fs"));
-    
+    myShader.bind();
+    // myShader.setUniform4f("u_Color", glm::vec4(0.2627, 0.8706, 0.1098, 1.0));
+    // load any kind of image to the GPU
+    Texture texture("/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/res/textures/Linux.jpeg"); 
+    texture.bind(0); // bind to the slot we want to use.
+    myShader.setUniform1i("u_Texture", 0); // this set to the slot of the texture we want to use in the uniform
+
+    vao.unbind();
+    vbo.unbind();
+    ibo.unbind();
+    myShader.unbind();  
+
     Renderer myRenderer;
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
+        /* Render here */
         myRenderer.clear();
+        
         myShader.bind();
         vao.bind();
         ibo.bind();
-        myShader.setUniform4f("a_Color", glm::vec4(0.2627, 0.8706, 0.1098, 1.0));
         // Use the polygon mode. This affects how the objects are rasterized (4th step in the magic plumb)
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // works to debug if everything is drawing as it is suppose to
-
-
         myRenderer.draw(vao, ibo, myShader);
+
 
         // select and draw the element buffer
         // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // draw with the element information, if it has no information. Segment fault (core dumped)

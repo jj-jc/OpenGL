@@ -1,13 +1,18 @@
-# version 330
-out vec4 FragColor;
-  
-in vec4 vertexColor; // the input variable from the vertex shader (same name and same type)  
+# version 330 core
 
-uniform vec4 a_Color = vec4(0.2627, 0.8706, 0.1098, 1.0);
-// uniform vec4 a_Color = vertexColor;
+layout(location = 0) out vec4 FragColor;
 
+in vec2 v_TexCoords;
+
+uniform vec4 u_Color = vec4(0.2627, 0.8706, 0.1098, 1.0);
+uniform sampler2D u_Texture; // to sample the texcoords
+ 
 void main()
 {
     // a_Color = vertexColor;
-    FragColor = a_Color;
+    // FragColor = u_Color;
+    FragColor = texture(u_Texture, v_TexCoords);
+    // FragColor = vec4(v_TexCoords, 0.0,1.0);
+    
+
 } 

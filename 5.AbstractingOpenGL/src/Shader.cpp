@@ -29,7 +29,7 @@ Shader::Shader(const std::string& vertexSource, const std::string& fragmentSourc
 
         // FIXME: not use std cout to show errors
         // Use the infoLog as you see fit.
-        
+        std::cout << "Compiling error of the vertex Shader" << std::endl;
         // In this simple program, we'll just leave
         return;
     }
@@ -60,8 +60,9 @@ Shader::Shader(const std::string& vertexSource, const std::string& fragmentSourc
         // Either of them. Don't leak shaders.
         glDeleteShader(vertexShader);
 
-        //TODO: write the log with the error
+        //FIXME: write the log with the error
         // Use the infoLog as you see fit.
+        std::cout << "Compiling error of the fragment Shader" << std::endl;
         
         // In this simple program, we'll just leave
         return;
@@ -98,9 +99,9 @@ Shader::Shader(const std::string& vertexSource, const std::string& fragmentSourc
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
 
-        // TODO: write the log with the error
+        // FIXME: write the log with the error
         // Use the infoLog as you see fit.
-        
+        std::cout << "linking error of the: " << m_RendererID << " Shader program" << std::endl;
         // In this simple program, we'll just leave
         return;
     }
@@ -125,6 +126,17 @@ void Shader::unbind() const
     glUseProgram(0);
 }
 
+void Shader::setUniform1i(const std::string& name, int value)
+{
+    glUniform1i(getUniformLocation(name.c_str()), value);
+}
+
+void Shader::setUniform1f(const std::string& name, float value)
+{
+    glUniform1f(getUniformLocation(name.c_str()), value);
+}
+
+
 void Shader::setUniform4f(const std::string& name, glm::vec4 floats)
 {
     glUniform4f(getUniformLocation(name.c_str()), floats.x, floats.y, floats.z, floats.w);;
@@ -139,7 +151,7 @@ int Shader::getUniformLocation(const std::string& name)
     int location = glGetUniformLocation(m_RendererID, name.c_str());
     //FIXME: use log no std::cout
     if(location == -1)
-        std::cout << "Warning: iniform '" << name << "' does't exits!" << std::endl;
+        std::cout << "Warning: uniform '" << name << "' doesn't exits!" << std::endl;
     
     m_UniformLocationCache[name] = location;
 
