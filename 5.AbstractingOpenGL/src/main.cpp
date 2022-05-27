@@ -9,7 +9,7 @@
 **
 ** $Date: 2022/02/14 12:21 $
 **
-** COPYRIGHT: INDRA SISTEMAS, 2000.
+** COPYRIGHT: .
 ** All the rights reserved
 **
 ** Description: This a simple example of using OpenGL. The tutorial
