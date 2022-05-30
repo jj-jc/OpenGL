@@ -32,9 +32,14 @@
 #include <stdio.h>
 #include <string.h>
 
-// imgui lib
-#include <stdio.h>
+// log4cxx 
+#include <log4cxx/log4cxx.h>
+#include <log4cxx/logger.h>
+#include "log4cxx/basicconfigurator.h"
+#include "log4cxx/propertyconfigurator.h"
+#include "log4cxx/helpers/pool.h"
 
+// imgui lib
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -47,7 +52,7 @@
 #include "VertexArray.h"
 #include "Texture.h"
 
-// test files
+// Convertion of images into buffer information
 #include "stb_image.h"
 
 // settings
@@ -58,6 +63,18 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 int main(void)
 {
+// Logger references and configurations
+log4cxx::LoggerPtr loggerMain = log4cxx::LoggerPtr (log4cxx::Logger::getLogger ("Stitching"));
+log4cxx::File pc ("/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/conf/log4.cxx.properties");    
+log4cxx::BasicConfigurator::resetConfiguration ();
+log4cxx::PropertyConfigurator::configure (pc);
+
+LOG4CXX_INFO(loggerMain, "-------- LOGGER MAIN --------" << "\n");
+LOG4CXX_WARN(loggerMain, "-------- LOGGER MAIN --------" << "\n");
+LOG4CXX_DEBUG(loggerMain, "-------- LOGGER MAIN --------" << "\n");
+LOG4CXX_ERROR(loggerMain, "-------- LOGGER MAIN --------" << "\n");
+LOG4CXX_TRACE(loggerMain, "-------- LOGGER MAIN --------" << "\n");
+
 #ifdef MY_DEBUG
 std::cout << "------------------ Debug Mode ------------------" << std::endl;
 #endif
@@ -71,6 +88,7 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    
 #ifdef MY_DEBUG
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 #endif
@@ -105,23 +123,25 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    (void)io;
-    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable
-    // Keyboard Controls io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; //
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    // ImGui::StyleColorsClassic();
-    // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version);
-    // Our state
-    bool show_demo_window = true;
-    bool show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.0471, 0.5137, 0.6549, 1.0);
+    // // Setup Dear ImGui context
+    // IMGUI_CHECKVERSION();
+    // ImGui::CreateContext();
+    // ImGuiIO& io = ImGui::GetIO();
+    // (void)io;
+    // // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable
+    // // Keyboard Controls io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; //
+    // // Setup Dear ImGui style
+    // ImGui::StyleColorsDark();
+    // // ImGui::StyleColorsClassic();
+    // // Setup Platform/Renderer backends
+    // ImGui_ImplGlfw_InitForOpenGL(window, true);
+    // ImGui_ImplOpenGL3_Init(glsl_version);
+    // // Our state
+    // bool show_demo_window = true;
+    // // bool show_another_window = false;
+    // ImVec4 clear_color = ImVec4(0.0471, 0.5137, 0.6549, 1.0);
+    // int display_w, display_h; // variables for glfwGetFramebufferSize() and control de size of the windows;
+
 
     // setting GL_DEBUG_OUTPUT
 #ifdef MY_DEBUG
@@ -152,8 +172,8 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
         2, 3, 0
     };
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // glEnable(GL_BLEND);
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Vertex buffer object
     VertexBuffer vbo(positions, sizeof(positions));
@@ -187,40 +207,48 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
     {
         /* Render here */
         myRenderer.clear();
-        
         myShader.bind();
         vao.bind();
         ibo.bind();
         // Use the polygon mode. This affects how the objects are rasterized (4th step in the magic plumb)
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // works to debug if everything is drawing as it is suppose to
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // works to debug if everything is drawing as it is suppose to
         myRenderer.draw(vao, ibo, myShader);
-
 
         // select and draw the element buffer
         // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // draw with the element information, if it has no information. Segment fault (core dumped)
         
+        // // --------------------------------------
+        // // Start the Dear ImGui frame
+        // ImGui_ImplOpenGL3_NewFrame();
+        // ImGui_ImplGlfw_NewFrame();
+        // ImGui::NewFrame();
+
+        // // 1. Show the big demo window
+        // ImGui::ShowDemoWindow((bool*)true);
         
-        // Start the Dear ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        // // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+        // {
+        //     static float f = 0.0f;
+        //     static int counter = 0;
+        //     ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+        //     ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+        //     // ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+        //     // ImGui::Checkbox("Another Window", &show_another_window);
+        //     ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        //     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        //     ImGui::End();
+        // }
 
-        // 1. Show the big demo window (Most of the sample code is in
-        // ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear
-        // ImGui!).
-        if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
+        // // Rendering
+        // ImGui::Render();
+        // glfwGetFramebufferSize(window, &display_w, &display_h);
+        // glViewport(0, 0, display_w, display_h);
+        // glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w,
+        //             clear_color.z * clear_color.w, clear_color.w);
+        // // glClear(GL_COLOR_BUFFER_BIT);
+        // ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        // Rendering
-        ImGui::Render();
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w,
-                    clear_color.z * clear_color.w, clear_color.w);
-        // glClear(GL_COLOR_BUFFER_BIT);
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        // draw our first triangle
+        // Process of OpenGl
         glfwSwapBuffers(window); // Swap front and back buffers
         glfwPollEvents(); // Poll for and process events
     }

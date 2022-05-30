@@ -72,3 +72,7 @@ build
 
 # JetBrains Rider
 *.sln.iml
+
+################### LOGs ###################
+Log
+Log/Log-DisplayProcessor.log
