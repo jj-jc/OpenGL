@@ -52,6 +52,11 @@
 #include "VertexArray.h"
 #include "Texture.h"
 
+// OpenGL math library
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 // Convertion of images into buffer information
 #include "stb_image.h"
 
@@ -60,7 +65,8 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-log4cxx::LoggerPtr loggerMain = log4cxx::LoggerPtr (log4cxx::Logger::getLogger ("Stitching"));
+// The creation of Loggers must be outside of int main funciton(){}
+log4cxx::LoggerPtr loggerMain = log4cxx::LoggerPtr (log4cxx::Logger::getLogger ("Stitching")); // definition of static variable
 
 int main(void)
 {
@@ -69,11 +75,11 @@ log4cxx::File pc ("/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/conf/log4.cxx.p
 log4cxx::BasicConfigurator::resetConfiguration ();
 log4cxx::PropertyConfigurator::configure (pc);
 
-LOG4CXX_INFO(loggerMain, "-------- LOGGER MAIN --------" << "\n");
-LOG4CXX_WARN(loggerMain, "-------- LOGGER MAIN --------" << "\n");
-LOG4CXX_DEBUG(loggerMain, "-------- LOGGER MAIN --------" << "\n");
-LOG4CXX_ERROR(loggerMain, "-------- LOGGER MAIN --------" << "\n");
-LOG4CXX_TRACE(loggerMain, "-------- LOGGER MAIN --------" << "\n");
+// LOG4CXX_INFO(loggerMain, "-------- LOGGER MAIN --------" << "\n");
+// LOG4CXX_WARN(loggerMain, "-------- LOGGER MAIN --------" << "\n");
+// LOG4CXX_DEBUG(loggerMain, "-------- LOGGER MAIN --------" << "\n");
+// LOG4CXX_ERROR(loggerMain, "-------- LOGGER MAIN --------" << "\n");
+// LOG4CXX_TRACE(loggerMain, "-------- LOGGER MAIN --------" << "\n");
 
 #ifdef MY_DEBUG
 std::cout << "------------------ Debug Mode ------------------" << std::endl;
@@ -161,10 +167,10 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
 
     float positions[] = {
         // positions         // colors          // texture coordanates
-         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 0.0f,     // bottom right
-        -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 0.0f,  0.0f, 0.0f,     // bottom left
-        -0.5f,  0.5f, 0.0f,  0.0f, 1.0f, 1.0f,  0.0f, 1.0f,     // top left
-         0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f,  1.0f, 1.0f      // top right
+         300.0f, 100.0f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 0.0f,     // bottom right
+         100.0f, 100.0f, 0.0f,  0.0f, 0.0f, 0.0f,  0.0f, 0.0f,     // bottom left
+         100.0f, 300.0f, 0.0f,  0.0f, 1.0f, 1.0f,  0.0f, 1.0f,     // top left
+         300.0f, 300.0f, 0.0f,  1.0f, 1.0f, 0.0f,  1.0f, 1.0f      // top right
     };
 
     unsigned int indices[] = {
@@ -174,6 +180,7 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendEquation(GL_FUNC_ADD);
 
     // Vertex buffer object
     VertexBuffer vbo(positions, sizeof(positions));
@@ -186,6 +193,14 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
     vao.addBuffer(vbo, layout);
     // Index buffer object
     IndexBuffer ibo(indices, sizeof(indices));
+
+    // MVP matrix
+    glm::mat4 proj = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, -1.0f, 1.0f); // projects the view into a field of (16 x 16 normalized)
+    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0,0)); // translate the object to the left or translate the camera to the right
+    glm::mat4 model = glm::mat4(1.0f);
+    glm::mat4 mvp = proj * view * model;
+
+
     // Create a complete shader program (with vertex and fragment shaders)    
     Shader myShader(Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/res/shaders/triangle.vs"), 
                     Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/res/shaders/triangle.fs"));
@@ -202,6 +217,11 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
     myShader.unbind();  
 
     Renderer myRenderer;
+    glm::vec3 translation(0.0f, 0.0f, 0.0f);
+    glm::vec3 scale(1.0f, 1.0f, 1.0f);
+
+    glm::mat4 translationMat(1.0f);
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -212,6 +232,11 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
         ibo.bind();
         // Use the polygon mode. This affects how the objects are rasterized (4th step in the magic plumb)
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // works to debug if everything is drawing as it is suppose to
+        // myShader.setUniform4f("u_Color", glm::vec4(0.8706, 0.7961, 0.1098, 0.5));
+        model = glm::translate(glm::mat4(1.0f), translation);
+        // model = glm::translate(glm::mat4(1.0f), translation) * glm::scale(translation, scale);
+        mvp = proj * view * model;
+        myShader.setUniformMatrix4fv("u_MVP", mvp);
         myRenderer.draw(vao, ibo, myShader);
 
         // select and draw the element buffer
@@ -228,13 +253,12 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
         
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {
-            static float f = 0.0f;
-            static int counter = 0;
             ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
             ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
             // ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
             // ImGui::Checkbox("Another Window", &show_another_window);
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::SliderFloat2("Translation", &translation.x, 0, SCR_WIDTH);            // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::SliderFloat2("Scale", &scale.x, 0, 1);            // Edit 1 float using a slider from 0.0f to 1.0f //FIXME:magic number
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
             ImGui::End();
         }

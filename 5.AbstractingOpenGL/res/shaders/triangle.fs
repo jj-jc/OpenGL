@@ -10,7 +10,7 @@ uniform sampler2D u_Texture; // to sample the texcoords
 void main()
 {
     // a_Color = vertexColor;
-    // FragColor = u_Color;
+    FragColor = u_Color;
     FragColor = texture(u_Texture, v_TexCoords);
     // FragColor = vec4(v_TexCoords, 0.0,1.0);
     
