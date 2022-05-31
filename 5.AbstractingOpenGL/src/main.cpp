@@ -60,11 +60,11 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+log4cxx::LoggerPtr loggerMain = log4cxx::LoggerPtr (log4cxx::Logger::getLogger ("Stitching"));
 
 int main(void)
 {
 // Logger references and configurations
-log4cxx::LoggerPtr loggerMain = log4cxx::LoggerPtr (log4cxx::Logger::getLogger ("Stitching"));
 log4cxx::File pc ("/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/conf/log4.cxx.properties");    
 log4cxx::BasicConfigurator::resetConfiguration ();
 log4cxx::PropertyConfigurator::configure (pc);
@@ -123,24 +123,24 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-    // // Setup Dear ImGui context
-    // IMGUI_CHECKVERSION();
-    // ImGui::CreateContext();
-    // ImGuiIO& io = ImGui::GetIO();
-    // (void)io;
-    // // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable
-    // // Keyboard Controls io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; //
-    // // Setup Dear ImGui style
-    // ImGui::StyleColorsDark();
-    // // ImGui::StyleColorsClassic();
-    // // Setup Platform/Renderer backends
-    // ImGui_ImplGlfw_InitForOpenGL(window, true);
-    // ImGui_ImplOpenGL3_Init(glsl_version);
-    // // Our state
-    // bool show_demo_window = true;
-    // // bool show_another_window = false;
-    // ImVec4 clear_color = ImVec4(0.0471, 0.5137, 0.6549, 1.0);
-    // int display_w, display_h; // variables for glfwGetFramebufferSize() and control de size of the windows;
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    (void)io;
+    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable
+    // Keyboard Controls io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; //
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    // ImGui::StyleColorsClassic();
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init(glsl_version);
+    // Our state
+    bool show_demo_window = true;
+    // bool show_another_window = false;
+    ImVec4 clear_color = ImVec4(0.0471, 0.5137, 0.6549, 1.0);
+    int display_w, display_h; // variables for glfwGetFramebufferSize() and control de size of the windows;
 
 
     // setting GL_DEBUG_OUTPUT
@@ -172,8 +172,8 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
         2, 3, 0
     };
 
-    // glEnable(GL_BLEND);
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Vertex buffer object
     VertexBuffer vbo(positions, sizeof(positions));
@@ -211,42 +211,42 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
         vao.bind();
         ibo.bind();
         // Use the polygon mode. This affects how the objects are rasterized (4th step in the magic plumb)
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // works to debug if everything is drawing as it is suppose to
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // works to debug if everything is drawing as it is suppose to
         myRenderer.draw(vao, ibo, myShader);
 
         // select and draw the element buffer
         // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // draw with the element information, if it has no information. Segment fault (core dumped)
         
-        // // --------------------------------------
-        // // Start the Dear ImGui frame
-        // ImGui_ImplOpenGL3_NewFrame();
-        // ImGui_ImplGlfw_NewFrame();
-        // ImGui::NewFrame();
+        // --------------------------------------
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
-        // // 1. Show the big demo window
-        // ImGui::ShowDemoWindow((bool*)true);
+        // 1. Show the big demo window
+        ImGui::ShowDemoWindow((bool*)true);
         
-        // // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-        // {
-        //     static float f = 0.0f;
-        //     static int counter = 0;
-        //     ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-        //     ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-        //     // ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-        //     // ImGui::Checkbox("Another Window", &show_another_window);
-        //     ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        //     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-        //     ImGui::End();
-        // }
+        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+        {
+            static float f = 0.0f;
+            static int counter = 0;
+            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+            // ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+            // ImGui::Checkbox("Another Window", &show_another_window);
+            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::End();
+        }
 
-        // // Rendering
-        // ImGui::Render();
-        // glfwGetFramebufferSize(window, &display_w, &display_h);
-        // glViewport(0, 0, display_w, display_h);
-        // glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w,
-        //             clear_color.z * clear_color.w, clear_color.w);
-        // // glClear(GL_COLOR_BUFFER_BIT);
-        // ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        // Rendering
+        ImGui::Render();
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w,
+                    clear_color.z * clear_color.w, clear_color.w);
+        // glClear(GL_COLOR_BUFFER_BIT);
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         // Process of OpenGl
         glfwSwapBuffers(window); // Swap front and back buffers
