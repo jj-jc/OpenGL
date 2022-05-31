@@ -11,6 +11,7 @@ set(SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VertexBufferLayout.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VertexArray.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Texture.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/TestClearColor.cpp
     )
 
 set(INC
