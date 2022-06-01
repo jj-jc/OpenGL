@@ -224,6 +224,10 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
     {
         /* Render here */
         myRenderer.clear();
+
+        test.OnUpdate(0.0f);
+        test.OnRender();
+
         myShader.bind();
         // Use the polygon mode. This affects how the objects are rasterized (4th step in the magic plumb)
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // works to debug if everything is drawing as it is suppose to
@@ -253,6 +257,9 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+
+        test.OnImGuiRender();
+
         // 1. Show the big demo window
         ImGui::ShowDemoWindow((bool*)true);
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
