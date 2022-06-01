@@ -4,7 +4,7 @@
 #include "Test.h"
 #include <GL/glew.h>
 #include "Renderer.h"
-#include "imgui.h"
+#include "imgui/imgui.h"
 
 namespace test {
     class TestClearColor : public Test

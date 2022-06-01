@@ -12,12 +12,14 @@ set(SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VertexArray.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Texture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/TestClearColor.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Menu.cpp
     )
 
 set(INC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/
-    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/
-    ${CMAKE_CURRENT_SOURCE_DIR}/external/stb_image/
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/
+    # ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/
+    # ${CMAKE_CURRENT_SOURCE_DIR}/external/stb_image/
     )
 
 include_directories(${INC})

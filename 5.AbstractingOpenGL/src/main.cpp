@@ -40,9 +40,9 @@
 #include "log4cxx/helpers/pool.h"
 
 // imgui lib
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 // My files
 #include "Shader.h"
@@ -58,7 +58,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 // Convertion of images into buffer information
-#include "stb_image.h"
+#include "stb_image/stb_image.h"
 
 // Tests
 #include "tests/TestClearColor.h"
