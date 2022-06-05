@@ -18,9 +18,16 @@ set(SRC
 set(INC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/
     ${CMAKE_CURRENT_SOURCE_DIR}/external/
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/
     # ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/
     # ${CMAKE_CURRENT_SOURCE_DIR}/external/stb_image/
     )
+
+# include the source for the imgui library
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/external/imgui IMGUI_SOURCE)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/external/stb_image STB_IMAGE_SOURCE)
+
+set(SRC ${SRC} ${IMGUI_SOURCE} ${STB_IMAGE_SOURCE})
 
 include_directories(${INC})
 
@@ -57,12 +64,12 @@ link_libraries(log4cxx)
 #     ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/imgui.cpp
 #     )
 
-add_library(stb_image_lib STATIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/external/stb_image/stb_image.cpp
-    )
+# add_library(stb_image_lib STATIC
+#     ${CMAKE_CURRENT_SOURCE_DIR}/external/stb_image/stb_image.cpp
+#     )
 
 # target_include_directories(imgui_lib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/)
 
 add_executable(AbstractingOpenGL ${SRC})
 
-target_link_libraries(AbstractingOpenGL PUBLIC imgui_lib stb_image_lib)
+target_link_libraries(AbstractingOpenGL PUBLIC)

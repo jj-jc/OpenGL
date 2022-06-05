@@ -149,6 +149,7 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.0471, 0.5137, 0.6549, 1.0);
 
+#ifdef MY_DEBUG
     // setting GL_DEBUG_OUTPUT
     int flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
     if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
@@ -159,7 +160,7 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
         std::cout << "GL_DEBUG_OUTPUT setted correctly" << std::endl;
     }
-
+#endif
 
     /* Definitions of objects */
     float positions[] = {

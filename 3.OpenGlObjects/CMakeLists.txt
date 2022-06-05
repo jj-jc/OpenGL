@@ -11,6 +11,11 @@ set(INC
     ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui
     )
 
+# include the source for the imgui library
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/external/imgui IMGUI_SOURCE)
+set(SRC ${SRC} ${IMGUI_SOURCE})
+
+
 include_directories(${INC})
 
 
@@ -47,4 +52,4 @@ link_libraries(glfw)
 
 add_executable(OpenGlObjects ${SRC})
 
-target_link_libraries(OpenGlObjects PUBLIC imgui_lib)
+target_link_libraries(OpenGlObjects PUBLIC)
