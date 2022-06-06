@@ -20,7 +20,7 @@ class Shader
     private:
         std::string m_FilePath;
         unsigned int m_RendererID;
-        std::unordered_map<std::string, int> m_UniformLocationCache;
+        mutable std::unordered_map<std::string, int> m_UniformLocationCache; // this is mutable to be able to change its value by the getUniformLocation function
     public:
         Shader(const std::string& vertexSource, const std::string& fragmentSource);
         ~Shader();
@@ -36,7 +36,7 @@ class Shader
         void setUniformMatrix4fv(const std::string& name, const glm::mat4 matrix);
         static std::string getShaderSource(const char* shaderFile);
     private:
-        int getUniformLocation(const std::string& name);
+        int getUniformLocation(const std::string& name) const; // this is conts because doesn't change the uniform information at all.
 
 };
 
