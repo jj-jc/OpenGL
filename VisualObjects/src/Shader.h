@@ -32,6 +32,7 @@ class Shader
         // set uniforms
         void setUniform1i(const std::string& name, int value); 
         void setUniform1f(const std::string& name, float value);
+        void setUniform3f(const std::string& name, glm::vec3 floats);
         void setUniform4f(const std::string& name, glm::vec4 floats);
         void setUniformMatrix4fv(const std::string& name, const glm::mat4 matrix);
         static std::string getShaderSource(const char* shaderFile);

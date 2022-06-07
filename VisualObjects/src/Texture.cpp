@@ -41,7 +41,7 @@ Texture::~Texture()
 // The slot is the parameter to reference the different textures in GPU
 void Texture::bind(unsigned int slot) const // 
 {
-    // glActiveTexture(GL_TEXTURE0 + slot);
+    glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_2D, m_RendererID);
 }
 

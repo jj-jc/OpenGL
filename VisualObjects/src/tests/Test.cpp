@@ -12,6 +12,12 @@ namespace test{
         
     }
 
+    void TestMenu::OnRender()
+    {
+    
+
+    }
+
     void TestMenu::OnImGuiRender()
     {
         for (auto& test: m_Tests)

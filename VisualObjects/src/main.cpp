@@ -54,6 +54,8 @@
 #include "tests/Test.h"
 #include "tests/TestClearColor.h"
 #include "tests/TestPanel.h"
+#include "tests/TestFreeType.h"
+
 
 // My files
 #include "Shader.h"
@@ -68,15 +70,15 @@
 // image loader
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
-// image simple 2D rectangle packer with decent quality
-#define STB_RECT_PACK_IMPLEMENTATION
-#include "stb/stb_rect_pack.h"
-// image parse, decode, and rasterize characters from truetype fonts
-#define STB_TRUETYPE_IMPLEMENTATION
-#include "stb/stb_truetype.h"
-// image writer
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb/stb_image_write.h"
+// // image simple 2D rectangle packer with decent quality
+// #define STB_RECT_PACK_IMPLEMENTATION
+// #include "stb/stb_rect_pack.h"
+// // image parse, decode, and rasterize characters from truetype fonts
+// #define STB_TRUETYPE_IMPLEMENTATION
+// #include "stb/stb_truetype.h"
+// // image writer
+// #define STB_IMAGE_WRITE_IMPLEMENTATION
+// #include "stb/stb_image_write.h"
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -253,6 +255,7 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
 
     testMenu->registerTest<test::TestClearColor>("Clear color");
     testMenu->registerTest<test::TestPanel>("Show panel");
+    testMenu->registerTest<test::TestFreeType>("Print: ' Hello world!'");
 
 
     // test::TestClearColor test;

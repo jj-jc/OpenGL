@@ -29,6 +29,7 @@ namespace test {
             TestMenu(Test*& currentTestPointer);
             ~TestMenu();
 
+            void OnRender() override;
             void OnImGuiRender() override;
 
             template<typename T>

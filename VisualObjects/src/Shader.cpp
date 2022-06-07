@@ -71,8 +71,8 @@ Shader::Shader(const std::string& vertexSource, const std::string& fragmentSourc
     // Vertex and fragment shaders are successfully compiled.
     // Now time to link them together into a program.
     // Get a program object.
-    m_RendererID = glCreateProgram();
-    GLuint program = m_RendererID;
+    this->m_RendererID = glCreateProgram();
+    GLuint program = this->m_RendererID;
 
     // Attach our shaders to our program
     glAttachShader(program, vertexShader);
@@ -118,7 +118,7 @@ Shader::~Shader()
 
 void Shader::bind() const
 {
-    glUseProgram(m_RendererID);
+    glUseProgram(this->m_RendererID);
 }
 
 void Shader::unbind() const
@@ -136,6 +136,10 @@ void Shader::setUniform1f(const std::string& name, float value)
     glUniform1f(getUniformLocation(name.c_str()), value);
 }
 
+void Shader::setUniform3f(const std::string& name, glm::vec3 floats)
+{
+    glUniform3f(getUniformLocation(name.c_str()), floats.x, floats.y, floats.z);
+}
 
 void Shader::setUniform4f(const std::string& name, glm::vec4 floats)
 {
