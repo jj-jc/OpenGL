@@ -201,7 +201,7 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
     // Create a complete shader program (with vertex and fragment shaders)    
     Shader myShader(Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/res/shaders/triangle.vs"), 
                     Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/res/shaders/triangle.fs"));
-    myShader.bind();
+    myShader.use();
     // myShader.setUniform4f("u_Color", glm::vec4(0.2627, 0.8706, 0.1098, 1.0));
     // load any kind of image to the GPU
     Texture texture("/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/res/textures/Linux.jpeg"); 
@@ -228,7 +228,7 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
         test.OnUpdate(0.0f);
         test.OnRender();
 
-        myShader.bind();
+        myShader.use();
         // Use the polygon mode. This affects how the objects are rasterized (4th step in the magic plumb)
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // works to debug if everything is drawing as it is suppose to
         // myShader.setUniform4f("u_Color", glm::vec4(0.8706, 0.7961, 0.1098, 0.5));

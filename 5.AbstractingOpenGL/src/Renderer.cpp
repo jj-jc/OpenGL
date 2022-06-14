@@ -8,7 +8,7 @@ void Renderer::clear() const
 
 void Renderer::draw(const VertexArray& va, const IndexBuffer& ib, const Shader& shader)
 {
-    shader.bind();
+    shader.use();
     va.bind();
     ib.bind();
     glDrawElements(GL_TRIANGLES, ib.getCount(), GL_UNSIGNED_INT, nullptr);

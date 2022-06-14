@@ -1,0 +1,3 @@
+[submodule "VisualObjects/external/imgui"]
+	path = VisualObjects/external/imgui
+	url = https://github.com/ocornut/imgui.git

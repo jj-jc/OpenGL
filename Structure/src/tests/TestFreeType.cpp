@@ -41,7 +41,7 @@ namespace test{
         glClear(GL_COLOR_BUFFER_BIT);
         glm::mat4 proj = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f, -1.0f, 1.0f); // projects the view into a field of (16 x 16 normalized)
         // activate corresponding render state	
-        m_Shader->bind();
+        m_Shader->use();
         m_Shader->setUniformMatrix4fv("u_MVP", proj);
         m_Shader->setUniform3f("u_TextColor", m_Color);
         glActiveTexture(GL_TEXTURE0);

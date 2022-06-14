@@ -25,7 +25,7 @@ class Shader
         Shader(const std::string& vertexSource, const std::string& fragmentSource);
         ~Shader();
 
-        void bind() const;      // its not bind really, it should be program use but to mantein it coherence with the other definitions
+        void use() const;      // its not bind really, it should be program use but to mantein it coherence with the other definitions
         void unbind() const;
 
         // TODO: do it more flexible instead of implement all the possibilities

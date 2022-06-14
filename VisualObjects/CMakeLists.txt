@@ -23,14 +23,21 @@ set(INC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/
     ${CMAKE_CURRENT_SOURCE_DIR}/external/
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/
-    # ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/
     # ${CMAKE_CURRENT_SOURCE_DIR}/external/stb_image/
     )
 
-# include the source for the imgui library
-aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/external/imgui IMGUI_SOURCE)
-# aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/external/stb_image STB_IMAGE_SOURCE)
-
+# include the source files for the imgui library
+set(IMGUI_SOURCE 
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/imgui_demo.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/imgui_draw.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/imgui_tables.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/imgui_widgets.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/imgui.cpp
+    # backends source files
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/backends/imgui_impl_glfw.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/backends/imgui_impl_opengl3.cpp
+    )
 set(SRC ${SRC} ${IMGUI_SOURCE})
 
 include_directories(${INC})

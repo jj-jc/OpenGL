@@ -29,7 +29,7 @@ namespace test{
         // Create a complete shader program (with vertex and fragment shaders)    
         m_Shader = std::make_unique<Shader>(Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/VisualObjects/res/shaders/panel.vs"), 
                         Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/VisualObjects/res/shaders/panel.fs"));
-        m_Shader->bind();
+        m_Shader->use();
         m_Shader->setUniform4f("u_Color", glm::vec4(m_Color[0], m_Color[1], m_Color[2], m_Color[3]));
         m_Shader->setUniformMatrix4fv("u_MVP", proj);
         m_VAO->unbind();
@@ -54,7 +54,7 @@ namespace test{
         Renderer renderer;
 
         {
-            m_Shader->bind();
+            m_Shader->use();
             m_Shader->setUniform4f("u_Color", glm::vec4(m_Color[0], m_Color[1], m_Color[2], m_Color[3]));
             renderer.draw(*m_VAO, *m_IBO, *m_Shader); // Although the vao stores the ibo too, it is more flexible if it is possible to change that information
             m_Shader->unbind();

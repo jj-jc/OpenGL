@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(VisualObjects VERSION 0.1.0)
+project(Structure VERSION 0.1.0)
 set(CMAKE_CXX_STANDARD 17)
 
 set(SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+    # OpenGL abstractions
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Shader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Renderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VertexBuffer.cpp
@@ -16,25 +16,46 @@ set(SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/Test.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/TestFreeType.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Menu.cpp
+    # ImGui module
+    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_IMGUI/ImGuiLayer.cpp
+    # OpenGL module
+    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/Layer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/LayerStack.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/Window.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/VisualManager.cpp
+    # new Layers
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Example.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ExampleLayer.cpp
+
+    # ${CMAKE_CURRENT_SOURCE_DIR}/src/Menu.cpp
     # ${CMAKE_CURRENT_SOURCE_DIR}/src/Font.cpp
     )
 
 set(INC
+    ${CMAKE_CURRENT_SOURCE_DIR}/
+    ${CMAKE_CURRENT_SOURCE_DIR}/utils
     ${CMAKE_CURRENT_SOURCE_DIR}/src/
-    ${CMAKE_CURRENT_SOURCE_DIR}/external/
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/
-    # ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/
     # ${CMAKE_CURRENT_SOURCE_DIR}/external/stb_image/
     )
 
-# include the source for the imgui library
-aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/external/imgui IMGUI_SOURCE)
-# aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/external/stb_image STB_IMAGE_SOURCE)
+# include the source files for the imgui library
+set(IMGUI_SOURCE 
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/imgui_demo.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/imgui_draw.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/imgui_tables.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/imgui_widgets.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/imgui.cpp
+    # backends source files
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/backends/imgui_impl_glfw.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui/backends/imgui_impl_opengl3.cpp
+    )
 
 set(SRC ${SRC} ${IMGUI_SOURCE})
 
 include_directories(${INC})
-
 
 # libraries
 

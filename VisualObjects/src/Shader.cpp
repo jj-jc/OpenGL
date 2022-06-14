@@ -116,7 +116,7 @@ Shader::~Shader()
     glDeleteProgram(m_RendererID);
 }
 
-void Shader::bind() const
+void Shader::use() const
 {
     glUseProgram(this->m_RendererID);
 }

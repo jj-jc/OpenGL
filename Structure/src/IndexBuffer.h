@@ -1,5 +1,5 @@
-#ifndef _INDEXBUFFER_H_
-#define _INDEXBUFFER_H_
+#ifndef _INDEX_BUFFER_H_
+#define _INDEX_BUFFER_H_
 
 #include <GL/glew.h>
 

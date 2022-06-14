@@ -41,21 +41,19 @@
 
 // imgui lib
 #include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
+#include "imgui/backends/imgui_impl_glfw.h"
+#include "imgui/backends/imgui_impl_opengl3.h"
 
 // OpenGL math library
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
 // Tests
 #include "tests/Test.h"
 #include "tests/TestClearColor.h"
 #include "tests/TestPanel.h"
 #include "tests/TestFreeType.h"
-
 
 // My files
 #include "Shader.h"
@@ -66,19 +64,13 @@
 #include "Texture.h"
 #include "Menu.h"
 
+
+// #include "Log.h"
+
 // stb libraries of single-file header-file
 // image loader
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
-// // image simple 2D rectangle packer with decent quality
-// #define STB_RECT_PACK_IMPLEMENTATION
-// #include "stb/stb_rect_pack.h"
-// // image parse, decode, and rasterize characters from truetype fonts
-// #define STB_TRUETYPE_IMPLEMENTATION
-// #include "stb/stb_truetype.h"
-// // image writer
-// #define STB_IMAGE_WRITE_IMPLEMENTATION
-// #include "stb/stb_image_write.h"
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -86,14 +78,16 @@ const unsigned int SCR_HEIGHT = 600;
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 // The creation of Loggers must be outside of int main funciton(){}
-log4cxx::LoggerPtr loggerMain = log4cxx::LoggerPtr (log4cxx::Logger::getLogger ("Stitching")); // definition of static variable
+// log4cxx::LoggerPtr loggerMain = log4cxx::LoggerPtr (log4cxx::Logger::getLogger ("Stitching")); // definition of static variable
 
 int main(void)
 {
 // Logger references and configurations
-log4cxx::File pc ("/home/jjjurado/Dev/OpenGL/VisualObjects/conf/log4.cxx.properties");    
-log4cxx::BasicConfigurator::resetConfiguration ();
-log4cxx::PropertyConfigurator::configure (pc);
+// log4cxx::File pc ("/home/jjjurado/Dev/OpenGL/VisualObjects/conf/log4.cxx.properties");    
+// log4cxx::BasicConfigurator::resetConfiguration ();
+// log4cxx::PropertyConfigurator::configure (pc);
+
+// LOG_INIT("/home/jjjurado/Dev/OpenGL/VisualObjects/conf/log4.cxx.properties");
 
 // LOG4CXX_INFO(loggerMain, "-------- LOGGER MAIN --------" << "\n");
 // LOG4CXX_WARN(loggerMain, "-------- LOGGER MAIN --------" << "\n");
@@ -121,7 +115,7 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
 
     /* Create a windowed mode window and its OpenGL context */
     // ------------------------------------------------------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "5.AbstractingOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Project Structure", NULL, NULL);
     if (!window)
     {
     	std::cout << "Failed to create GLFW window" << std::endl;
@@ -216,12 +210,12 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
     glm::mat4 mvp = proj * view * model;
 
     // Create a complete shader program (with vertex and fragment shaders)    
-    Shader myShader(Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/res/shaders/triangle.vs"), 
-                    Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/res/shaders/triangle.fs"));
-    myShader.bind();
+    Shader myShader(Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/Structure/res/shaders/triangle.vs"), 
+                    Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/Structure/res/shaders/triangle.fs"));
+    myShader.use();
     // myShader.setUniform4f("u_Color", glm::vec4(0.2627, 0.8706, 0.1098, 1.0));
     // load any kind of image to the GPU
-    Texture texture("/home/jjjurado/Dev/OpenGL/5.AbstractingOpenGL/res/textures/Linux.jpeg"); 
+    Texture texture("/home/jjjurado/Dev/OpenGL/Structure/res/textures/Linux.jpeg"); 
     texture.bind(0); // bind to the slot we want to use.
     myShader.setUniform1i("u_Texture", 0); // this set to the slot of the texture we want to use in the uniform
     vao.unbind();
@@ -236,19 +230,6 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
 
     test::TestClearColor test;
 
-
-    // {
-    //     // Load the font
-    //     stbtt_pack_context pc;
-    //     stbtt_PackBegin(&pc, temp_bitmap, BITMAP_W, BITMAP_H, 0, 1, NULL);
-    //     stbtt_PackSetOversampling(&pc, 2, 2);
-    //     stbtt_PackFontRange(&pc, ttf_buffer, 0, font_size, 32, 95, chardata + 32);
-    //     stbtt_PackEnd(&pc);
-
-    //     stb_write_png("/home/jjjurado/Dev/OpenGL/VisualObjects/res/fonts/font5.png", BITMAP_W, BITMAP_H, 1, temp_bitmap, 0);
-        
-    // }
-
     test::Test* currentTest = nullptr;
     test::TestMenu* testMenu = new test::TestMenu(currentTest);
     currentTest = testMenu;
@@ -257,10 +238,7 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
     testMenu->registerTest<test::TestPanel>("Show panel");
     testMenu->registerTest<test::TestFreeType>("Print: ' Hello world!'");
 
-
     // test::TestClearColor test;
-
-
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -271,13 +249,13 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
         // test.OnUpdate(0.0f);
         // test.OnRender();
 
-        // myShader.bind();
+        // myShader.use();
         // Use the polygon mode. This affects how the objects are rasterized (4th step in the magic plumb)
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // works to debug if everything is drawing as it is suppose to
         // myShader.setUniform4f("u_Color", glm::vec4(0.8706, 0.7961, 0.1098, 0.5));
         
         {
-            myShader.bind();
+            myShader.use();
             model = glm::translate(glm::mat4(1.0f), translationA);
             // model = glm::translate(glm::mat4(1.0f), translation) * glm::scale(translation, scale);
             mvp = proj * view * model;
@@ -287,7 +265,7 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
         }
 
         {
-            myShader.bind();
+            myShader.use();
             model = glm::translate(glm::mat4(1.0f), translationB);
             // model = glm::translate(glm::mat4(1.0f), translation) * glm::scale(translation, scale);
             mvp = proj * view * model;
