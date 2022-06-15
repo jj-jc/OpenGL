@@ -1,9 +1,16 @@
 #include "ExampleLayer.h"
 
 ExampleLayer::ExampleLayer()
+	:Layer("ExampleLayer")
 {
-    
+
 }
+ExampleLayer::ExampleLayer(const std::string name)
+	:Layer(name)
+{
+
+}
+
 ExampleLayer::~ExampleLayer()
 {
 
@@ -19,9 +26,11 @@ void ExampleLayer::attach()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Create a complete shader program (with vertex and fragment shaders)    
-    Shader myShader(Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/Structure/res/shaders/triangle.vs"), 
+    static Shader myShader(Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/Structure/res/shaders/triangle.vs"), 
                     Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/Structure/res/shaders/triangle.fs"));
-    myShader.use();
+    
+	m_Shader = &myShader;
+	// myShader.use();
 
 	glCreateVertexArrays(1, &m_QuadVA);
 	glBindVertexArray(m_QuadVA);
@@ -55,16 +64,14 @@ void ExampleLayer::detach()
 
 void ExampleLayer::update(double ts)
 {
-
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	// glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 
 void ExampleLayer::renderImGui()
 {
-    ImGui::Begin("Controls");
+    ImGui::Begin((getName()).c_str());
 	if (ImGui::ColorEdit4("Square Base Color", glm::value_ptr(m_SquareBaseColor)))
 		m_SquareColor = m_SquareBaseColor;
 	ImGui::ColorEdit4("Square Alternate Color", glm::value_ptr(m_SquareAlternateColor));

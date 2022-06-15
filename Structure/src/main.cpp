@@ -56,12 +56,12 @@
 #include "tests/TestFreeType.h"
 
 // My files
-#include "Shader.h"
-#include "Renderer.h"
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "VertexArray.h"
-#include "Texture.h"
+#include "CSU_OPENGL/Shader.h"
+#include "CSU_OPENGL/Renderer.h"
+#include "CSU_OPENGL/VertexBuffer.h"
+#include "CSU_OPENGL/IndexBuffer.h"
+#include "CSU_OPENGL/VertexArray.h"
+#include "CSU_OPENGL/Texture.h"
 #include "Menu.h"
 
 

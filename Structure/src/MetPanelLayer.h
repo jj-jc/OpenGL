@@ -15,15 +15,22 @@
 
 // imgui lib
 #include "imgui/imgui.h"
+#include "imgui/backends/imgui_impl_glfw.h"
+#include "imgui/backends/imgui_impl_opengl3.h"
 
-#include "CSU_OPENGL/Layer.h"
-#include "Shader.h"
+#include "CSU_MANAGER/Layer.h"
+#include "CSU_MANAGER/VisualManager.h"
+#include "CSU_OPENGL/Shader.h"
+#include "ExampleLayer.h"
 
+
+// extern log4cxx::LoggerPtr loggerMetPanel;
 
 class MetPanelLayer : public Layer
 {
 public:
     MetPanelLayer();
+    MetPanelLayer(const std::string& name);
     virtual ~MetPanelLayer();
 
     virtual void attach() override;

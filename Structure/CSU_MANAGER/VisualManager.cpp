@@ -34,6 +34,16 @@ void VisualManager::pushOverLayer(Layer* layer)
     m_LayerStack.pushOverLayer(layer);
 }
 
+void VisualManager::popLayer(Layer* layer)
+{
+    m_LayerStack.popLayer(layer);
+}
+
+void VisualManager::popOverLayer(Layer* overlayer)
+{
+    m_LayerStack.popOverLayer(overlayer);
+}
+
 void VisualManager::run()
 {
     while(m_Running)

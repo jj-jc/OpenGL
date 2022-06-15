@@ -1,9 +1,37 @@
 #include "MetPanelLayer.h"
 
+static bool showExampleLayer = false;
+static bool isCreated = false;
+static Layer* layer_ptr = nullptr;
+
+
+// TODO: make it in a general file to include whenever it is required
+// static void HelpMarker(const char* desc)
+// {
+//     ImGui::TextDisabled("(?)");
+//     if (ImGui::IsItemHovered())
+//     {
+//         ImGui::BeginTooltip();
+//         ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+//         ImGui::TextUnformatted(desc);
+//         ImGui::PopTextWrapPos();
+//         ImGui::EndTooltip();
+//     }
+// }
+
+
 MetPanelLayer::MetPanelLayer()
+	:Layer("MetPanel")
 {
     
 }
+
+MetPanelLayer::MetPanelLayer(const std::string& name)
+	:Layer(name)
+{
+    
+}
+
 MetPanelLayer::~MetPanelLayer()
 {
 
@@ -19,9 +47,10 @@ void MetPanelLayer::attach()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Create a complete shader program (with vertex and fragment shaders)    
-    Shader myShader(Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/Structure/res/shaders/triangle.vs"), 
-                    Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/Structure/res/shaders/triangle.fs"));
-    myShader.use();
+    static Shader myShader(Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/Structure/res/shaders/panel.vs"), 
+                    Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/Structure/res/shaders/panel.fs"));
+    m_Shader = &myShader;
+	// myShader.use();
 
 	glCreateVertexArrays(1, &m_QuadVA);
 	glBindVertexArray(m_QuadVA);
@@ -61,11 +90,16 @@ void MetPanelLayer::update(double ts)
 
 	m_Shader->use();
 
+	m_Shader->setUniform4f("u_Color", m_SquareColor);
+
+	glBindVertexArray(m_QuadVA);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
 }
 
 void MetPanelLayer::renderImGui()
 {
-    ImGui::Begin("Controls");
+    ImGui::Begin((getName()).c_str());
 	if (ImGui::ColorEdit4("Square Base Color", glm::value_ptr(m_SquareBaseColor)))
 		m_SquareColor = m_SquareBaseColor;
 	ImGui::ColorEdit4("Square Alternate Color", glm::value_ptr(m_SquareAlternateColor));

@@ -4,28 +4,29 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(SRC
     # OpenGL abstractions
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Shader.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Renderer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/VertexBuffer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/IndexBuffer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/VertexBufferLayout.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/VertexArray.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Texture.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/Shader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/Renderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/VertexBuffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/IndexBuffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/VertexBufferLayout.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/VertexArray.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/Texture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/TestClearColor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/TestPanel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/Test.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/TestFreeType.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Menu.cpp
     # ImGui module
     ${CMAKE_CURRENT_SOURCE_DIR}/CSU_IMGUI/ImGuiLayer.cpp
     # OpenGL module
-    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/Layer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/LayerStack.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/Window.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/VisualManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_MANAGER/Layer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_MANAGER/LayerStack.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_MANAGER/Window.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_MANAGER/VisualManager.cpp
     # new Layers
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Example.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ExampleLayer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/MetPanelLayer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Menu.cpp
 
     # ${CMAKE_CURRENT_SOURCE_DIR}/src/Menu.cpp
     # ${CMAKE_CURRENT_SOURCE_DIR}/src/Font.cpp

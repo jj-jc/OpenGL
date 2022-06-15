@@ -23,14 +23,15 @@
 // #include "imgui/backends/imgui_impl_glfw.h"
 // #include "imgui/backends/imgui_impl_opengl3.h"
 
-#include "CSU_OPENGL/Layer.h"
-#include "Shader.h"
+#include "CSU_MANAGER/Layer.h"
+#include "CSU_OPENGL/Shader.h"
 
 
 class ExampleLayer : public Layer
 {
 public:
     ExampleLayer();
+    ExampleLayer(const std::string name);
     virtual ~ExampleLayer();
 
     virtual void attach() override;

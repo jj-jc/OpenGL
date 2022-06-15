@@ -8,7 +8,7 @@ LayerStack::LayerStack()
 LayerStack::~LayerStack()
 {
     for(Layer* layer : m_Layers)
-        delete layer;
+        delete layer; // this is where all the memory allocated in new Layers is released
 }
 
 void LayerStack::pushLayer(Layer* layer)
@@ -30,6 +30,7 @@ void LayerStack::popLayer(Layer* layer)
     if(it != m_Layers.begin() + m_LayerInsertIndex)
     {
         layer->detach();
+        delete layer;
         m_Layers.erase(it);
         m_LayerInsertIndex--;
     }
@@ -41,6 +42,7 @@ void LayerStack::popOverLayer(Layer* overlayer)
     if(it != m_Layers.end())
     {
         overlayer->detach();
+        delete overlayer;
         m_Layers.erase(it);
     }
 }

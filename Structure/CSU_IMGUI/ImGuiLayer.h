@@ -1,8 +1,8 @@
 #ifndef _IMGUI_LAYER_H_
 #define _IMGUI_LAYER_H_
 
-#include "CSU_OPENGL/Layer.h"
-#include "CSU_OPENGL/Window.h"
+#include "CSU_MANAGER/Layer.h"
+#include "CSU_MANAGER/Window.h"
 #include "imgui/imgui.h"
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
@@ -11,6 +11,7 @@
 
 #include <GLFW/glfw3.h>
 
+void HelpMarker(const char* desc);
 
 class ImGuiLayer : public Layer
 {
@@ -32,5 +33,6 @@ private:
     float m_Time = 0.0f;
     Window* m_Window;
 };
+
 
 #endif

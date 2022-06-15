@@ -21,6 +21,8 @@ public:
     // void OnEvent(Event& e);
     void pushLayer(Layer* layer);
     void pushOverLayer(Layer* layer);
+    void popLayer(Layer* layer);
+    void popOverLayer(Layer* overlayer);
 
     inline Window& getWindow() {return *m_Window;}
     inline Window* getWindowPtr() {return m_Window;}

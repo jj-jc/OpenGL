@@ -1,6 +1,8 @@
 
-#include "CSU_OPENGL/VisualManager.h"
+#include "CSU_MANAGER/VisualManager.h"
 #include "ExampleLayer.h"
+#include "MetPanelLayer.h"
+#include "Menu.h"
 
 // stb libraries of single-file header-file
 // image loader
@@ -17,6 +19,9 @@
 // Define static logger variable
 log4cxx::LoggerPtr loggerMain; 
 log4cxx::LoggerPtr loggerOpenGL;
+// log4cxx::LoggerPtr loggerMetPanel;
+log4cxx::LoggerPtr loggerMenu;
+
 
 
 class Example : public VisualManager
@@ -25,7 +30,8 @@ public:
 	Example()
 		: VisualManager("OpenGL Examples")
 	{
-		pushLayer(new ExampleLayer());
+		pushOverLayer(new Menu("Menu One"));
+		pushLayer(new MetPanelLayer("MetPanelLayer One"));
 	}
 };
 
@@ -33,6 +39,8 @@ int main()
 {
 	loggerMain = log4cxx::LoggerPtr(log4cxx::Logger::getLogger("Main"));
 	loggerOpenGL = log4cxx::LoggerPtr(log4cxx::Logger::getLogger("OpenGL"));
+	// loggerMetPanel = log4cxx::LoggerPtr(log4cxx::Logger::getLogger("MetPanel"));
+	loggerMenu = log4cxx::LoggerPtr(log4cxx::Logger::getLogger("Menu"));
 	log4cxx::File pc("/home/jjjurado/Dev/OpenGL/Structure/conf/log4.cxx.properties");
 	log4cxx::BasicConfigurator::resetConfiguration(); 
 	log4cxx::PropertyConfigurator::configure (pc);

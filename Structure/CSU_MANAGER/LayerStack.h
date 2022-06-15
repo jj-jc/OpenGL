@@ -19,6 +19,7 @@ public:
     std::vector<Layer*>::iterator begin() {return m_Layers.begin();}
     std::vector<Layer*>::iterator end() {return m_Layers.end();}
 private:
+// TODO: Instead of do it with a vector, change to map and asociate with an ID
     std::vector<Layer*> m_Layers;
     uint32_t m_LayerInsertIndex = 0; 
 };
