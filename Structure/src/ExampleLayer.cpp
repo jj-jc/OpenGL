@@ -71,7 +71,8 @@ void ExampleLayer::update(double ts)
 
 void ExampleLayer::renderImGui()
 {
-    ImGui::Begin((getName()).c_str());
+	uintptr_t aux = reinterpret_cast<std::uintptr_t>(this);
+    ImGui::Begin((getName()+ "##" + std::to_string(aux)).c_str());
 	if (ImGui::ColorEdit4("Square Base Color", glm::value_ptr(m_SquareBaseColor)))
 		m_SquareColor = m_SquareBaseColor;
 	ImGui::ColorEdit4("Square Alternate Color", glm::value_ptr(m_SquareAlternateColor));

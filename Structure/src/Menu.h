@@ -22,6 +22,7 @@
 #include "CSU_MANAGER/VisualManager.h"
 #include "CSU_OPENGL/Shader.h"
 #include "ExampleLayer.h"
+#include "MetPanelLayer.h"
 
 
 extern log4cxx::LoggerPtr loggerMenu;

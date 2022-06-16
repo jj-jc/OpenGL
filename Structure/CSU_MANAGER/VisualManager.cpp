@@ -19,9 +19,8 @@ VisualManager::VisualManager(const std::string& name, uint32_t width, uint32_t h
     this->m_Window = (Window::create((const WindowData) windowData));
     // m_Window->setEventCallback
 
-    //TODO:delete the new memory allocation
     m_ImGuiLayer = new ImGuiLayer(this->getWindowPtr());
-    pushOverLayer(m_ImGuiLayer);
+    pushLayer(m_ImGuiLayer);
 }
 
 void VisualManager::pushLayer(Layer* layer)

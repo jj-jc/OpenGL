@@ -44,13 +44,17 @@ Window::Window(const WindowData& windowData)
     // LOG4CXX_INFO(loggerOpenGL, "Renderer: " << glGetString(GL_RENDERER));
     // LOG4CXX_INFO(loggerOpenGL, "Version: " << glGetString(GL_VERSION));
 
+
+
+
+
     glfwSetWindowUserPointer(m_GLFWWindow, &m_WindowData);
     setVSync(true);
 
     // TODO: Definition of the callbacks you need for OpenGL
     // glfwSetWindowSizeCallback();
     // glfwSetWindowCloseCallback();
-    // glfwSetKeyCallback();
+    glfwSetKeyCallback(m_GLFWWindow, key_callback);
 }
 
 
@@ -86,3 +90,12 @@ Window* Window::create(const WindowData& windowData)
     return new Window(windowData);
 }
 
+void Window::key_callback(GLFWwindow* window,
+                  int         key,
+                  int         scancode,
+                  int         action,
+                  int         mods)
+{
+    if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, GL_TRUE);
+}

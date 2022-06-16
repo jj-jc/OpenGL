@@ -39,7 +39,7 @@ public:
     inline uint32_t getHeight() const {return m_WindowData.Width;}
 
     // set window attributes (eventcallback), setVsync, isVsync
-    // inline void setEventCallback();
+    // inline void setEventCallback(const );
     void setVSync(bool enabled);
     bool isVSync() const;
 
@@ -48,6 +48,8 @@ public:
 
 private:
     // virtual void init(const WindowData& windowData);
+    static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
     void shutdown(); 
 private:
     GLFWwindow* m_GLFWWindow;

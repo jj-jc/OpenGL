@@ -22,6 +22,7 @@ public:
 
     virtual void attach() override;
     virtual void detach() override;
+    virtual void update(double ts) override;
 
     void begin();
     void end();
