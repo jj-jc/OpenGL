@@ -77,7 +77,8 @@ private:
 	glm::vec4 m_SquareColor = { 0.8f, 0.2f, 0.3f, 1.0f };
 	glm::vec4 m_EdgeColor = { 1.0f, 0.5f, 0.3f, 1.0f };
 
-    glm::vec3 m_SquareTranslation = {0.0f, 0.0f, 0.0f};
+    glm::vec3 m_Translation = {0.0f, 0.0f, 0.0f};
+    glm::vec3 m_Scale = {1.0f, 1.0f, 1.0f};
 
     // changes
     Square m_BackgroundSquare;
