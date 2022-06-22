@@ -154,8 +154,8 @@ std::cout << "------------------ Debug Mode ------------------" << std::endl;
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable keyboard controls in ImGui interface
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; 
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;  // Enable multi-viewport / Platform windows
+    // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; 
+    // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;  // Enable multi-viewport / Platform windows
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark(); // or  ImGui::StyleColorsClassic();

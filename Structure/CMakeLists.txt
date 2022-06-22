@@ -14,7 +14,7 @@ set(SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/TestClearColor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/TestPanel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/Test.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/TestFreeType.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/src/tests/TestFreeType.cpp
     # ImGui module
     ${CMAKE_CURRENT_SOURCE_DIR}/CSU_IMGUI/ImGuiLayer.cpp
     # OpenGL module
@@ -27,6 +27,7 @@ set(SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ExampleLayer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MetPanelLayer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Menu.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/src/TestFreeType.cpp
 
     # ${CMAKE_CURRENT_SOURCE_DIR}/src/Menu.cpp
     # ${CMAKE_CURRENT_SOURCE_DIR}/src/Font.cpp

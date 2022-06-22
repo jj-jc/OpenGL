@@ -21,7 +21,8 @@
 #include "CSU_MANAGER/Layer.h"
 #include "CSU_MANAGER/VisualManager.h"
 #include "CSU_OPENGL/Shader.h"
-#include "ExampleLayer.h"
+
+#include "TestFreeType.h"
 
 
 extern log4cxx::LoggerPtr loggerMetPanel;
