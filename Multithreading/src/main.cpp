@@ -1,422 +1,248 @@
-/**************************************************************
-**************************************************************
-**
-** $RCSfile: Simple.ccp $
-**
-** $Author: jj-jc $
-**
-** $Revision: 0.0.0 $
-**
-** $Date: 2022/02/14 12:21 $
-**
-** COPYRIGHT: .
-** All the rights reserved
-**
-** Description: This a simple example of using OpenGL. The tutorial
-** Adopted is related with 'The Cherno' channel and
-*'http://www.opengl-tutorial.org/es/'
-**
-**************************************************************
-**************************************************************/
-
-// Include of the GLEW. always first than the glfw3
 #include <GL/glew.h>
-
-// Include of the GLFW
 #include <GLFW/glfw3.h>
+#include <vector>
+#include <cmath>
+#include <cstdio>
+#include <limits>
+#include <chrono>
+#include <thread>
+#include <mutex>
 
-// Standard headers
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <stdio.h>
-#include <string.h>
-#include <string>
-
-// log4cxx
-#include "log4cxx/basicconfigurator.h"
-#include "log4cxx/helpers/pool.h"
-#include "log4cxx/propertyconfigurator.h"
-#include <log4cxx/log4cxx.h>
-#include <log4cxx/logger.h>
-
-// imgui lib
-#include "imgui/backends/imgui_impl_glfw.h"
-#include "imgui/backends/imgui_impl_opengl3.h"
-#include "imgui/imgui.h"
-
-// OpenGL math library
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-// Tests
-#include "tests/Test.h"
-#include "tests/TestClearColor.h"
-#include "tests/TestFreeType.h"
-#include "tests/TestPanel.h"
-
-// My files
-#include "CSU_OPENGL/IndexBuffer.h"
-#include "CSU_OPENGL/Renderer.h"
-#include "CSU_OPENGL/Shader.h"
-#include "CSU_OPENGL/Texture.h"
-#include "CSU_OPENGL/VertexArray.h"
-#include "CSU_OPENGL/VertexBuffer.h"
-#include "Menu.h"
+//#define GL33
+//#define FULLSCREEN
 
 
+static const int width = 640;   
+static const int height = 360;
 
-// #include "Log.h"
+GLFWwindow* window;
+GLFWwindow* window_slave;
+GLuint fb[2] = {std::numeric_limits<GLuint>::max(), std::numeric_limits<GLuint>::max()}; //framebuffers
+GLuint rb[2] = {std::numeric_limits<GLuint>::max(), std::numeric_limits<GLuint>::max()}; //renderbuffers, color and depth
 
-// stb libraries of single-file header-file
-// image loader
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb/stb_image.h"
+bool threadShouldRun = true;
+bool isFBOdirty = true; //true when last frame was displayed, false
+						//when just updated and not yet displayed
+bool isFBOready = false; //set by worker thread when initialized
+bool isFBOsetupOnce = false; //set by main thread when initialized
 
-// settings
-const unsigned int SCR_WIDTH  = 800;
-const unsigned int SCR_HEIGHT = 600;
+std::timed_mutex mutexGL;
 
-static void key_callback(GLFWwindow* window,
-                         int         key,
-                         int         scancode,
-                         int         action,
-                         int         mods);
-// The creation of Loggers must be outside of int main funciton(){}
-// log4cxx::LoggerPtr loggerMain = log4cxx::LoggerPtr
-// (log4cxx::Logger::getLogger ("Stitching")); // definition of static variable
-
-int main(void)
+static bool checkFrameBuffer(GLuint fbuffer)
 {
-   // Logger references and configurations
-   // log4cxx::File pc
-   // ("/home/jjjurado/Dev/OpenGL/VisualObjects/conf/log4.cxx.properties");
-   // log4cxx::BasicConfigurator::resetConfiguration ();
-   // log4cxx::PropertyConfigurator::configure (pc);
-
-   // LOG_INIT("/home/jjjurado/Dev/OpenGL/VisualObjects/conf/log4.cxx.properties");
-
-   // LOG4CXX_INFO(loggerMain, "-------- LOGGER MAIN --------" << "\n");
-   // LOG4CXX_WARN(loggerMain, "-------- LOGGER MAIN --------" << "\n");
-   // LOG4CXX_DEBUG(loggerMain, "-------- LOGGER MAIN --------" << "\n");
-   // LOG4CXX_ERROR(loggerMain, "-------- LOGGER MAIN --------" << "\n");
-   // LOG4CXX_TRACE(loggerMain, "-------- LOGGER MAIN --------" << "\n");
-
-#ifdef MY_DEBUG
-   std::cout << "------------------ Debug Mode ------------------" << std::endl;
-#endif
-
-   // start GL context and O/S window using the GLFW helper library
-   if(!glfwInit())
-   {
-      fprintf(stderr, "ERROR: could not start GLFW3\n");
-      return 1;
-   }
-
-   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-
-#ifdef MY_DEBUG
-   glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
-#endif
-
-   /* Create a windowed mode window and its OpenGL context */
-   // ------------------------------------------------------------------
-   GLFWwindow* window =
-      glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Project Multithreading", NULL, NULL);
-   if(!window)
-   {
-      std::cout << "Failed to create GLFW window" << std::endl;
-      glfwTerminate();
-      exit(EXIT_FAILURE);
-   }
-
-   glfwMakeContextCurrent(window);
-
-   /* This has to be done after make a valid OpenGL rendering context */
-   // start GLEW extension handler
-   glewExperimental = GL_TRUE;
-
-   if(glewInit() != GLEW_OK)
-      std::cout << "Error with the glewInit" << std::endl;
-
-   std::cout << glGetString(GL_VERSION) << std::endl;
-
-   int nrAttributes;
-   glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
-   std::cout << "Maximum number of vertex attributes supported: "
-             << nrAttributes << std::endl;
-
-   // GL 3.0 + GLSL 130
-   const char* glsl_version = "#version 130";
-   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-
-   // Setup Dear ImGui context
-   IMGUI_CHECKVERSION();
-   ImGui::CreateContext();
-   ImGuiIO& io = ImGui::GetIO();
-   // Setup Dear ImGui style
-   ImGui::StyleColorsDark();   // or  ImGui::StyleColorsClassic();
-   // Setup Platform/Renderer backends
-   ImGui_ImplGlfw_InitForOpenGL(window, true);
-   ImGui_ImplOpenGL3_Init(glsl_version);
-
-   // setting GL_DEBUG_OUTPUT
-#ifdef MY_DEBUG
-   int flags;
-   glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-   if(flags & GL_CONTEXT_FLAG_DEBUG_BIT)
-   {
-      glEnable(GL_DEBUG_OUTPUT);
-      glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-      glDebugMessageCallback(glDebugOutput, nullptr);
-      glDebugMessageControl(GL_DONT_CARE,
-                            GL_DONT_CARE,
-                            GL_DONT_CARE,
-                            0,
-                            nullptr,
-                            GL_TRUE);
-      std::cout << "GL_DEBUG_OUTPUT setted correctly" << std::endl;
-   }
-#endif
-
-   // --------------------------------------
-   // OpenGl tools
-   //
-   // For using blend feature
-   glEnable(GL_BLEND);
-   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-   glBlendEquation(GL_FUNC_ADD);
-
-   glfwSetKeyCallback(window, key_callback);
-
-   float positions[] = {
-      // positions         // colors          // texture coordanates
-      300.0f, 100.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,   // bottom right
-      100.0f, 100.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,   // bottom left
-      100.0f, 300.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,   // top left
-      300.0f, 300.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f    // top right
-   };
-   unsigned int indices[] = {0, 1, 2, 2, 3, 0};
-
-   // Vertex buffer object
-   VertexBuffer vbo(positions, sizeof(positions));
-   // Vertex array object
-   VertexArray        vao;
-   VertexBufferLayout layout;
-   layout.push<float>(3);   // positions
-   layout.push<float>(3);   // color
-   layout.push<float>(2);   // texture coordenates
-   vao.addBuffer(vbo, layout);
-   // Index buffer object
-   IndexBuffer ibo(indices, sizeof(indices));
-
-   // MVP matrix
-   glm::vec3 translationA(0.0f, 0.0f, 0.0f);
-   glm::vec3 translationB(0.0f, 0.0f, 0.0f);
-   glm::vec3 scale(1.0f, 1.0f, 1.0f);
-   glm::mat4 proj = glm::ortho(
-      0.0f,
-      800.0f,
-      0.0f,
-      600.0f,
-      -1.0f,
-      1.0f);   // projects the view into a field of (16 x 16 normalized)
-   glm::mat4 view = glm::translate(
-      glm::mat4(1.0f),
-      glm::vec3(-100, 0, 0));   // translate the object to the left or translate
-                                // the camera to the right
-   glm::mat4 model = glm::mat4(1.0f);
-   glm::mat4 mvp   = proj * view * model;
-
-   // Create a complete shader program (with vertex and fragment shaders)
-   Shader myShader(
-      Shader::getShaderSource(
-         "/home/jjjurado/Dev/OpenGL/Multithreading/res/shaders/triangle.vs"),
-      Shader::getShaderSource(
-         "/home/jjjurado/Dev/OpenGL/Multithreading/res/shaders/triangle.fs"));
-   myShader.use();
-   // myShader.setUniform4f("u_Color", glm::vec4(0.2627, 0.8706, 0.1098, 1.0));
-   // load any kind of image to the GPU
-   Texture texture(
-      "/home/jjjurado/Dev/OpenGL/Multithreading/res/textures/Linux.jpeg");
-   texture.bind(0);   // bind to the slot we want to use.
-   myShader.setUniform1i(
-      "u_Texture",
-      0);   // this set to the slot of the texture we want to use in the uniform
-   vao.unbind();
-   vbo.unbind();
-   ibo.unbind();
-   myShader.unbind();
-   Renderer myRenderer;
-
-   // Our state
-   ImVec4 clear_color = ImVec4(0.0471, 0.5137, 0.6549, 1.0);
-   int    display_w, display_h;   // variables for glfwGetFramebufferSize() and
-                                  // control de size of the windows;
-
-   test::TestClearColor test;
-
-   test::Test*     currentTest = nullptr;
-   test::TestMenu* testMenu    = new test::TestMenu(currentTest);
-   currentTest                 = testMenu;
-
-   testMenu->registerTest<test::TestClearColor>("Clear color");
-   testMenu->registerTest<test::TestPanel>("Show panel");
-   testMenu->registerTest<test::TestFreeType>("Print: ' Hello world!'");
-
-   // test::TestClearColor test;
-
-   /* Loop until the user closes the window */
-   while(!glfwWindowShouldClose(window))
-   {
-      /* Render here */
-      myRenderer.clear();
-
-      // test.OnUpdate(0.0f);
-      // test.OnRender();
-
-      // myShader.use();
-      // Use the polygon mode. This affects how the objects are rasterized (4th
-      // step in the magic plumb) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); //
-      // works to debug if everything is drawing as it is suppose to
-      // myShader.setUniform4f("u_Color", glm::vec4(0.8706, 0.7961, 0.1098,
-      // 0.5));
-
-      {
-         myShader.use();
-         model = glm::translate(glm::mat4(1.0f), translationA);
-         // model = glm::translate(glm::mat4(1.0f), translation) *
-         // glm::scale(translation, scale);
-         mvp = proj * view * model;
-         myShader.setUniformMatrix4fv("u_MVP", mvp);
-         myRenderer.draw(vao,
-                         ibo,
-                         myShader);   // Although the vao stores the ibo too, it
-                                      // is more flexible if it is possible to
-                                      // change that information
-         myShader.unbind();
-      }
-
-      {
-         myShader.use();
-         model = glm::translate(glm::mat4(1.0f), translationB);
-         // model = glm::translate(glm::mat4(1.0f), translation) *
-         // glm::scale(translation, scale);
-         mvp = proj * view * model;
-         myShader.setUniformMatrix4fv("u_MVP", mvp);
-         myRenderer.draw(vao,
-                         ibo,
-                         myShader);   // Although the vao stores the ibo too, it
-                                      // is more flexible if it is possible to
-                                      // change that information
-         myShader.unbind();
-      }
-
-      // select and draw the element buffer
-      // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // draw with the
-      // element information, if it has no information. Segment fault (core
-      // dumped)
-
-      // --------------------------------------
-      // Start the Dear ImGui frame
-      ImGui_ImplOpenGL3_NewFrame();
-      ImGui_ImplGlfw_NewFrame();
-      ImGui::NewFrame();
-
-      if(currentTest)
-      {
-         currentTest->OnUpdate(0.0f);
-         currentTest->OnRender();
-         ImGui::Begin("Test");
-         if(currentTest != testMenu && ImGui::Button("<-"))
-         {
-            delete currentTest;
-            currentTest = testMenu;
-         }
-         currentTest->OnImGuiRender();
-         ImGui::End();
-      }
-
-      // test.OnImGuiRender();
-
-      // 1. Show the big demo window
-      ImGui::ShowDemoWindow((bool*)true);
-      // 2. Show a simple window that we create ourselves. We use a Begin/End
-      // pair to created a named window.
-      {
-         ImGui::Begin("Configuration Menu");   // Create a window called "Hello,
-                                               // world!" and append into it.
-         // ImGui::Text("This is some useful text.");               // Display
-         // some text (you can use a format strings too) ImGui::Checkbox("Demo
-         // Window", &show_demo_window);      // Edit bools storing our window
-         // open/close state ImGui::Checkbox("Another Window",
-         // &show_another_window);
-         ImGui::SliderFloat2(
-            "translationA",
-            &translationA.x,
-            0,
-            SCR_WIDTH);   // Edit 1 float using a slider from 0.0f to 1.0f
-         ImGui::SliderFloat2(
-            "translationB",
-            &translationB.x,
-            0,
-            SCR_WIDTH);   // Edit 1 float using a slider from 0.0f to 1.0f
-         ImGui::SliderFloat2("Scale",
-                             &scale.x,
-                             0,
-                             1);   // Edit 1 float using a slider from 0.0f
-                                   // to 1.0f //FIXME:magic number
-         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
-                     1000.0f / ImGui::GetIO().Framerate,
-                     ImGui::GetIO().Framerate);
-         ImGui::End();
-      }
-
-      // Menu myMenu();
-
-      // Rendering
-      ImGui::Render();
-      ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-      // // OpenGL process
-      // glfwGetFramebufferSize(window, &display_w, &display_h);
-      // glViewport(0, 0, display_w, display_h);
-      // glClearColor(clear_color.x * clear_color.w, clear_color.y *
-      // clear_color.w,
-      //             clear_color.z * clear_color.w, clear_color.w);
-      // glClear(GL_COLOR_BUFFER_BIT);
-      // Swap front and back buffers
-      glfwSwapBuffers(window);
-      // Poll for and process events
-      glfwPollEvents();
-   }
-   delete currentTest;
-   if(currentTest != testMenu)
-      delete testMenu;
-
-   // Cleanup
-   ImGui_ImplOpenGL3_Shutdown();
-   ImGui_ImplGlfw_Shutdown();
-   ImGui::DestroyContext();
-
-   glfwDestroyWindow(window);
-   glfwTerminate();   // Close OpenGlL window and terminate GLFW context
-   exit(EXIT_SUCCESS);
+	bool isFB = glIsFramebuffer(fbuffer);
+	bool isCA = glIsRenderbuffer(rb[0]);
+	bool isDSA = glIsRenderbuffer(rb[1]);
+	bool isComplete = false;
+	if(isFB){
+		glBindFramebuffer(GL_FRAMEBUFFER, fbuffer);		
+		isComplete = (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+	}
+	
+/*
+	printf("Is fb a framebuffer? %s\n", isFB ? "[yes]" : "[no]");
+	printf("Is rb[0] a color renderbuffer? %s\n", isCA ? "[yes]" : "[no]");
+	printf("Is rv[1] a depth stencil renderbuffer? %s\n", isDSA ? "[yes]" : "[no]");
+	printf("Is fb framebuffer-complete? %s\n", isComplete ? "[yes]" : "[no]");
+*/
+	return isFB && isCA &&isDSA && isComplete;	
 }
 
-// Definitions of functions
-void key_callback(GLFWwindow* window,
-                  int         key,
-                  int         scancode,
-                  int         action,
-                  int         mods)
+/* worker thread creates its own FBO to render to, as well as two renderbuffers.
+The renderbuffers are also used by a separate FBO in main()
+fb[0] is owned by main, and fb[1] is owned by worker thread
+*/
+static bool createFrameBuffer() //for worker thread
 {
-   if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-   {
-      glfwSetWindowShouldClose(window, GLFW_TRUE);
-      std::cout << "Esc key pressed" << std::endl;
-   }
+	bool ret;
+	
+	glGenFramebuffers(1, &fb[1]);
+	glBindFramebuffer(GL_FRAMEBUFFER, fb[1]);
+	glGenRenderbuffers(2, rb);
+	glBindRenderbuffer(GL_RENDERBUFFER, rb[0]);
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, 2, GL_RGBA8, width, height);
+	glBindRenderbuffer(GL_RENDERBUFFER, rb[1]);
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, 2, GL_DEPTH24_STENCIL8, width, height);
+
+	glBindRenderbuffer(GL_RENDERBUFFER, rb[0]);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rb[0]);
+	glBindRenderbuffer(GL_RENDERBUFFER, rb[1]);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rb[1]);
+
+	glFlush();
+
+	if(!(ret = checkFrameBuffer(fb[1]))){
+		glDeleteRenderbuffers(2, rb);
+		glDeleteFramebuffers(1,  &fb[1]);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+	return ret;	
 }
+
+/* If worker thread is finished initializing renderbuffers, reuse them in a FBO for main.
+fb[0] is owned by main, and fb[1] is owned by worker thread */
+static void createFrameBufferMain()
+{
+	while(!mutexGL.try_lock_for(std::chrono::seconds(1))){
+		return;
+	}
+	
+	if(isFBOready){ //is other thread finished setting up FBO?
+		if(glIsRenderbuffer(rb[0]) && glIsRenderbuffer(rb[1])){
+			glBindFramebuffer(GL_FRAMEBUFFER, fb[0]);	
+			glBindRenderbuffer(GL_RENDERBUFFER, rb[0]);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rb[0]);
+			glBindRenderbuffer(GL_RENDERBUFFER, rb[1]);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rb[1]);
+			isFBOsetupOnce = true;
+		}
+	}
+	mutexGL.unlock();
+}
+
+/* Used in main to copy from fbo into the real framebuffer.
+fb[0] FBO owned by main reuses renderbuffers from worker thread.
+The contents of those renderbuffers are then copied into the
+default framebuffer by this function. */
+static void copyFrameBuffer(GLuint fbuffer)
+{
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbuffer);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glBlitFramebuffer(0, 0, width, height,
+					  0, 0, width, height,
+					  GL_COLOR_BUFFER_BIT,
+					  GL_NEAREST);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+}
+
+static GLFWwindow* initWindow(GLFWwindow* shared, bool visible)
+{
+	GLFWwindow* win;
+#ifdef GL33
+ 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+#endif
+	if(visible)
+		glfwWindowHint(GLFW_VISIBLE, GL_TRUE);
+	else 
+		glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
+	
+#ifdef FULLSCREEN
+	GLFWmonitor* monitor = 0;
+	if(visible) //Don't create fullscreen window for offscreen contexts
+		monitor = glfwGetPrimaryMonitor();	
+    win = glfwCreateWindow(width, height, "Optimus example", monitor, shared);
+#else
+    win = glfwCreateWindow(width, height, "Optimus example", 0, shared);
+#endif
+	return win;	
+}
+
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if ((key == GLFW_KEY_ESCAPE || key == GLFW_KEY_ENTER)
+		&& action == GLFW_PRESS){		
+        glfwSetWindowShouldClose(window, GL_TRUE);
+	}
+}
+
+
+
+/********************************************** TEST *********************************/
+static void worker_thread()
+{
+	glfwMakeContextCurrent(window_slave);
+	//create new shared framebuffer object
+	mutexGL.lock();
+	createFrameBuffer();
+	isFBOready = true;
+	mutexGL.unlock();
+	
+	for(;;){
+		mutexGL.lock();
+		if(!threadShouldRun){
+			mutexGL.unlock();
+			break;
+		}
+		if(isFBOdirty){			
+			glBindFramebuffer(GL_FRAMEBUFFER, fb[1]);
+			float r = (float)rand() / (float)RAND_MAX;		
+			glClearColor(r,r,r,1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glFlush();
+			isFBOdirty = false;
+		}
+		mutexGL.unlock();
+	}
+	printf("Exiting thread..\n");
+	return;	
+}
+
+int main(int argc, char* argv[])
+{	
+	if(!glfwInit()){
+		printf("Failed to initialize glfw\n");		
+		return 0;
+	}
+	//main window
+	window = initWindow(0, true);
+	//window used by second thread
+	window_slave = initWindow(window, false);
+
+	if(!window || !window_slave){
+		glfwTerminate();
+		printf("Failed to create glfw windows\n");
+		return 0;		
+	}
+	glfwSetKeyCallback(window, key_callback);	
+	glfwMakeContextCurrent(window);
+	
+	if(glewInit()){
+		printf("Failed to init GLEW\n");
+		glfwDestroyWindow(window);
+		glfwDestroyWindow(window_slave);
+		glfwTerminate();		
+		return 0;
+	}
+
+	std::thread gl_thread(worker_thread);
+	
+	glGenFramebuffers(1, &fb[0]);
+	glViewport(0, 0, width, height);
+	
+    while(!glfwWindowShouldClose(window)){
+		glfwPollEvents(); //get key input
+		if(!isFBOsetupOnce){
+			createFrameBufferMain(); //isFBOsetupOnce = true when FBO can be used
+		} else {
+			if(checkFrameBuffer(fb[0])){
+				if(!mutexGL.try_lock_for(std::chrono::seconds(1)))
+					continue;			
+				if(!isFBOdirty){					
+					copyFrameBuffer(fb[0]);			
+					glfwSwapBuffers(window);
+					isFBOdirty = true;
+					//printf("Framebuffer OK\n");			
+				} else {
+					glBindFramebuffer(GL_FRAMEBUFFER, 0);
+					glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				}
+				mutexGL.unlock();
+			} else {
+				printf("Framebuffer not ready!\n");
+				GLenum e = glGetError();
+				printf("OpenGL error: %X\n", e);			
+			}
+		}		
+    }
+    threadShouldRun = false; //other thread only reads this
+    gl_thread.join();
+    glfwDestroyWindow(window);
+    glfwDestroyWindow(window_slave);
+    glfwTerminate();
+    return 0;
+}
+
