@@ -106,14 +106,14 @@ The contents of those renderbuffers are then copied into the
 default framebuffer by this function. */
 static void copyFrameBuffer(GLuint fbuffer)
 {
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbuffer);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, fbuffer); // bind to the read framebuffer with the info of fbuffer
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // pointe to a empty draw framebuffer
 	glBlitFramebuffer(0, 0, width, height,
 					  0, 0, width, height,
 					  GL_COLOR_BUFFER_BIT,
-					  GL_NEAREST);
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+					  GL_NEAREST); // copy a block of pixels from the read framebuffer to the draw framebuffer
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, 0); // bind to an empty read framebuffer
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // bind to an empty draw framebuffer
 }
 
 static GLFWwindow* initWindow(GLFWwindow* shared, bool visible)
@@ -169,7 +169,8 @@ static void worker_thread()
 		if(isFBOdirty){			
 			glBindFramebuffer(GL_FRAMEBUFFER, fb[1]);
 			float r = (float)rand() / (float)RAND_MAX;		
-			glClearColor(r,r,r,1.0f);
+			// glClearColor(r,r,r,1.0f);
+			glClearColor(1.0f,0.0f,0.0f,1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glFlush();
 			isFBOdirty = false;
@@ -189,7 +190,7 @@ int main(int argc, char* argv[])
 	//main window
 	window = initWindow(0, true);
 	//window used by second thread
-	window_slave = initWindow(window, false);
+	window_slave = initWindow(window, false); // create a window and a context shared with window
 
 	if(!window || !window_slave){
 		glfwTerminate();
@@ -218,7 +219,7 @@ int main(int argc, char* argv[])
 			createFrameBufferMain(); //isFBOsetupOnce = true when FBO can be used
 		} else {
 			if(checkFrameBuffer(fb[0])){
-				if(!mutexGL.try_lock_for(std::chrono::seconds(1)))
+				if(!mutexGL.try_lock_for(std::chrono::seconds(2)))
 					continue;			
 				if(!isFBOdirty){					
 					copyFrameBuffer(fb[0]);			
