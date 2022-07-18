@@ -65,9 +65,9 @@ static bool createFrameBuffer() //for worker thread
 	glRenderbufferStorageMultisample(GL_RENDERBUFFER, 2, GL_DEPTH24_STENCIL8, width, height);
 
 	glBindRenderbuffer(GL_RENDERBUFFER, rb[0]);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rb[0]);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rb[0]); // attach the renderbuffer as a color buffer
 	glBindRenderbuffer(GL_RENDERBUFFER, rb[1]);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rb[1]);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rb[1]); // attach the renderbuffer as a depth buffer
 
 	glFlush();
 
@@ -169,6 +169,8 @@ static void worker_thread()
 		if(isFBOdirty){			
 			glBindFramebuffer(GL_FRAMEBUFFER, fb[1]);
 			float r = (float)rand() / (float)RAND_MAX;		
+			// drawcall for the second context
+			
 			// glClearColor(r,r,r,1.0f);
 			glClearColor(1.0f,0.0f,0.0f,1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -216,10 +218,10 @@ int main(int argc, char* argv[])
     while(!glfwWindowShouldClose(window)){
 		glfwPollEvents(); //get key input
 		if(!isFBOsetupOnce){
-			createFrameBufferMain(); //isFBOsetupOnce = true when FBO can be used
+			createFrameBufferMain(); //isFBOsetupOnce = true when FBO can be used (just one time)
 		} else {
 			if(checkFrameBuffer(fb[0])){
-				if(!mutexGL.try_lock_for(std::chrono::seconds(2)))
+				if(!mutexGL.try_lock_for(std::chrono::seconds(1)))
 					continue;			
 				if(!isFBOdirty){					
 					copyFrameBuffer(fb[0]);			
