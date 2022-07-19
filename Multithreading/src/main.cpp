@@ -8,6 +8,8 @@
 #include <thread>
 #include <mutex>
 
+#include "CSU_OPENGL/Shader.h"
+
 //#define GL33
 //#define FULLSCREEN
 
@@ -18,7 +20,7 @@ static const int height = 360;
 GLFWwindow* window;
 GLFWwindow* window_slave;
 GLuint fb[2] = {std::numeric_limits<GLuint>::max(), std::numeric_limits<GLuint>::max()}; //framebuffers
-GLuint rb[2] = {std::numeric_limits<GLuint>::max(), std::numeric_limits<GLuint>::max()}; //renderbuffers, color and depth
+GLuint rb[2] = {std::numeric_limits<GLuint>::max(), std::numeric_limits<GLuint>::max()}; //renderbuffers, color and depth this are shared among the contexts
 
 bool threadShouldRun = true;
 bool isFBOdirty = true; //true when last frame was displayed, false
@@ -27,6 +29,17 @@ bool isFBOready = false; //set by worker thread when initialized
 bool isFBOsetupOnce = false; //set by main thread when initialized
 
 std::timed_mutex mutexGL;
+
+// Changes to draw a simple triangle
+/* Definitions of objects */
+float positions[] = {
+	// positions         // colors
+		0.0f, -0.0f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
+		2.0f,  2.0f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
+		0.0f,  2.0f, 0.0f,  0.0f, 0.0f, 1.0f    // top 
+};
+GLuint vbo;
+
 
 static bool checkFrameBuffer(GLuint fbuffer)
 {
@@ -160,6 +173,17 @@ static void worker_thread()
 	isFBOready = true;
 	mutexGL.unlock();
 	
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    // glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
+    // Vertex Attribute position
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    // Vertex Attribute colors
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) (3 * sizeof(float)));
+	
+	Shader ourShader(Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/2.Shaders/res/shaders/triangle.vs"), Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/2.Shaders/res/shaders/triangle.fs"));
+	
 	for(;;){
 		mutexGL.lock();
 		if(!threadShouldRun){
@@ -167,13 +191,15 @@ static void worker_thread()
 			break;
 		}
 		if(isFBOdirty){			
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glBindFramebuffer(GL_FRAMEBUFFER, fb[1]);
 			float r = (float)rand() / (float)RAND_MAX;		
 			// drawcall for the second context
-			
+			ourShader.use();
+
+			glDrawArrays(GL_TRIANGLES, 0, 3);
 			// glClearColor(r,r,r,1.0f);
-			glClearColor(1.0f,0.0f,0.0f,1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClearColor(1.0f,0.0f,0.0f,0.0f);
 			glFlush();
 			isFBOdirty = false;
 		}
@@ -192,7 +218,7 @@ int main(int argc, char* argv[])
 	//main window
 	window = initWindow(0, true);
 	//window used by second thread
-	window_slave = initWindow(window, false); // create a window and a context shared with window
+	window_slave = initWindow(window, false); // create a window and a context shared with the main window
 
 	if(!window || !window_slave){
 		glfwTerminate();
@@ -210,12 +236,26 @@ int main(int argc, char* argv[])
 		return 0;
 	}
 
-	std::thread gl_thread(worker_thread);
 	
 	glGenFramebuffers(1, &fb[0]);
-	glViewport(0, 0, width, height);
-	
-    while(!glfwWindowShouldClose(window)){
+	// glViewport(0, 0, width, height);
+
+    // GLuint vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
+    // Vertex Attribute position
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    // Vertex Attribute colors
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) (3 * sizeof(float)));
+ 
+	std::thread gl_thread(worker_thread);
+
+	Shader ourShader(Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/2.Shaders/res/shaders/triangle.vs"), Shader::getShaderSource("/home/jjjurado/Dev/OpenGL/2.Shaders/res/shaders/triangle.fs"));
+
+	while(!glfwWindowShouldClose(window)){
 		glfwPollEvents(); //get key input
 		if(!isFBOsetupOnce){
 			createFrameBufferMain(); //isFBOsetupOnce = true when FBO can be used (just one time)
@@ -224,14 +264,23 @@ int main(int argc, char* argv[])
 				if(!mutexGL.try_lock_for(std::chrono::seconds(1)))
 					continue;			
 				if(!isFBOdirty){					
-					copyFrameBuffer(fb[0]);			
+					copyFrameBuffer(fb[0]);		
+					ourShader.use();
+					// ourShader.use();
+					// glDrawArrays(GL_TRIANGLES, 0, 3);
 					glfwSwapBuffers(window);
 					isFBOdirty = true;
+					ourShader.unbind();
 					//printf("Framebuffer OK\n");			
 				} else {
 					glBindFramebuffer(GL_FRAMEBUFFER, 0);
+					// ourShader.use();
+        			// ourShader.setUniform1i("someUniform", 1.0f);
+					ourShader.use();
+        			glDrawArrays(GL_TRIANGLES, 0, 3);
 					glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
 					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+					ourShader.unbind();
 				}
 				mutexGL.unlock();
 			} else {

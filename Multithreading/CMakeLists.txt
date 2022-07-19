@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(SRC
     # OpenGL abstractions
-    # ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/Shader.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/Shader.cpp
     # ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/Renderer.cpp
     # ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/VertexBuffer.cpp
     # ${CMAKE_CURRENT_SOURCE_DIR}/CSU_OPENGL/IndexBuffer.cpp
